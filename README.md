@@ -14,28 +14,26 @@ To download python go to https://www.python.org/ and download and install python
 
 TnClone was tested under Ubuntu 14.04 LTS and Windows 7
 
-I am not sure if TnClone will operate properly on other operating system.
-
 ### Installation
 
-### Linux users
+#### Linux users
 
 For Linux users there is no typical method to install this package.
 
 Just clone this repository using command line below on your terminal screen.
-
-(Press ctrl + alt + t if you are Ubuntu user. For another distribution google it!
 
 ```
 git clone https://github.com/tahuh/tnclone
 ```
 Or download this repository directly by clicking download button above and unzip the archive.
 
-### Windows users
+#### Windows users
 
 For Windows users download this program by clicking download button above and unzip the archive.
 
 ### How to use
+
+#### Linux users
 
 After downloading TnClone please navigate to your directory where TnClone installed.
 
@@ -47,6 +45,25 @@ Navigate to tnclone sub directory by typing
 cd ~/Downloads/TnClone/linux/tnclone
 ```
 
+if you have naviaged to the path above then type
+
+```
+python tnclone.py
+```
+Will give you a interface
+
+#### Windows user
+
+After downloading TnClone please go to your directory where TnClone is installed
+
+Here we asseme your directory is  C:\\User\\Downloads
+
+Search for folder C:\\User\\Downloads\\windows\\tnclone\\dist
+
+There is an executable file called 'tnclone'.
+
+By double clicking this icon, tnclone will execute with some command line prompt automatically open.
+
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
 * Byungjin Hwang  - *Statistical analysis* -
@@ -54,6 +71,6 @@ cd ~/Downloads/TnClone/linux/tnclone
 ## License
 GPL v3
 
-## Ackowldegements
+## Acknowledgements
 We thanks to Bang's lab for kind donation of their samples for testing TnClone.
 We also thanks to Junho Jung's lab for kind donation of their scFv samples.
