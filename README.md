@@ -23,7 +23,7 @@ For Linux users there is no typical method to install this package.
 Just clone this repository using command line below on your terminal screen.
 
 ```
-git clone https://github.com/tahuh/tnclone
+git clone https://github.com/tahuh/tnclone.git
 ```
 Or download this repository directly by clicking download button above and unzip the archive.
 
