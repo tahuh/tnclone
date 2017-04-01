@@ -48,8 +48,8 @@ cd ~/Downloads/TnClone/linux/tnclone
 ```
 
 ## Authors
-* ** Sunghoon Heo ** - *Developed almost all modules of TnClone and GUI interface* -
-* ** Byungjin Hwang ** - *Downsampling and Diasgnosis plotting source code* -
+* Sunghoon Heo - *Initially developed this software* -
+* Byungjin Hwang  - *Statistical analysis* -
 
 ## License
 GPL v3
