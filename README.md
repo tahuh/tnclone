@@ -42,7 +42,7 @@ Here we asseume your path to TnClone is ~/Downloads/TnClone
 Navigate to tnclone sub directory by typing
 
 ```
-cd ~/Downloads/TnClone/linux/tnclone
+cd ~/Downloads/TnClone/linux/
 ```
 
 if you have naviaged to the path above then type
