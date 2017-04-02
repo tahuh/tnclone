@@ -137,7 +137,7 @@ By double clicking this icon, tnclone will execute with some command line prompt
 
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
-* Byungjin Hwang  - *Statistical analysis* -
+* Byungjin Hwang  - *Data analysis* -
 
 ## License
 GPL v3
