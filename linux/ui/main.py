@@ -1,0 +1,616 @@
+#!/usr/bin/python
+
+import sys
+import time
+from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import SIGNAL
+from PyQt4.Qt import *
+
+import window
+import popup_options
+
+### Option class
+class Option(object):
+	def __init__(self, option_dict=None):
+		self.option = option_dict
+
+### Main Thread
+class PipelineThread(QtCore.QThread):
+	def __init__(self , opts,editor):
+		QtCore.QThread.__init__(self)
+		self.option = opts
+		self.prefix = "TMP_PAP_"
+		self.prefix += time.strftime("%H-%M-%S")
+		self.prefix += "-"
+		self.prefix += time.strftime("%d-%m-%Y")
+		self.message = editor
+	### Adding function required
+
+	def __del__(self):
+		self.wait()
+
+	def _run_sorter(self):
+		outpath = abspath(self.options["out_dir"])
+		sort_path = outpath + "/sorted"
+		logger = []
+		if not os.path.isdir(sort_path) :
+			logger.append("[LOGGER] Sorting file does not exist. Creating....")
+			os.mkdir(sort_path)
+
+		if self.options["sort_step"] == True:
+			sort_indir = os.path.abspath(self.options["raw_dir"])
+			sort_conf = abspath(self.options["sort_info_path"])
+			sorter = Sorter(sort_indir,sort_path, sort_conf)
+			logger.append("[LOGGER] Sorting your samples")
+			sorter.sort()
+
+	def run(self):
+		
+### Description Popup screen
+
+class DescriptionPopupScreen(QtGui.QWidget):
+	
+	def __init__(self,desc_type=None):
+		self.dialects = {
+"sample_info" : """The Sample Information contains two columns<br/><br/>
+1. Gene name<br/>
+2. number of samples<br/><br/>
+
+Both columns are <b>TAB</b> separated<br/><br/>
+<b>CAUTION !!!</b><br/><br/>
+The Gene name and number of samples to analyse must be same compared to sorting information.<br/><br/>
+
+Example.<br/><br/>
+Let's say out gene name is MYGENE and have 12 samples to analyse<br/><br/>
+Then we have<br/><br/>
+MYGENE	12<br/><br/>
+
+""",
+"sort_info" : """The Sorting Information for TnSuite is described below<br/><br/>
+There are 5 columns<br/></br><br/>
+First  Column  : Gene name ( We recommend to use 6  chracters )<br/>
+Second Column  : Number of Samples to analyse<br/>
+Third  Column  : Tn5 specific barcode (8-mers)<br/>
+Fourth Column  : The RAW NGS read file name (forward direction)<br/>
+Fifth  Column  : The RAW NGS read file name (reverse direction)<br/><br/><br/>
+
+<b>CAUTION !!!</b><br/><br/>
+I. All columns must be TAB separated<br/>
+II. For fourth, fifth column, file list must be comma separated (See example below)<br/><br/>
+
+Lets say we want to analyse a insert gene called MYGENE<br/>
+The number of samples are 12<br/>
+Tn5 Specific barcode is GTCCATCA<br/>
+Forward side NGS files 1_1.fastq,2_1.fastq,3_1.fastq<br/>
+Reverse side NGS files 1_2.fastq,2_2.fastq,3_2.fastq<br/><br/>
+
+Then for this sample, we have format below<br/><br/>
+
+MYGENE\t12\tGTCCATCA\t1_1.fastq,2_1.fastq,3_1.fastq\t1_2.fastq,2_2.fastq,3_2.fastq<br/>
+""",
+"bed_info" : """The BED file ( region file ) cusually contains 4 columns
+<br/>
+<br/>
+In Genomics 4 <b>TAB</b> separated coulmns are usually used<br/><br/>
+<br/>I.   CHROMOSOME
+<br/>II.  START OF REGION
+<br/>III. END OF REGION
+<br/>IV.  DESCRIPTION FOR THIS REGION (such as intron, exon etc.)
+<br/><br/>
+But for us we will use first three columns as described above
+<br/><br/>
+<br/>I.   GENE
+<br/>II.  START OF REGION
+<br/>III. END OF REGION
+<br/><br/>
+<b>CAUTION !!!</b>
+<br/>The gene name must be same compared to Sorting information ans Sample information
+<br/><br/>
+If you do not know how to make that file, just following instruction
+<br/><br/>
+Let's say your TnSuite installation location is <b>TNSUITE</b>
+<br/><br/>
+Type following command line at terminal window by pressing (ctrl + alt + T)
+<br/><br/>
+STEP 1 ( Change directory to your destination )
+<br/><br/>
+cd <b>TNSUITE</b>
+<br/>
+cd src
+<br/>
+<br/><br/>
+STEP 2 ( Launch accessory program you need )
+<br/><br/>
+Suppose your reference files are located under <b>INPUT_REFRENCE</b><br/>
+Suppose your output directory is <b>OUTPUT_DIR</b><br/>
+Suppose your BED file's prefix ( the file name before extension ) is <b>PREFIX</b><br/>
+<br/>Then type below<br/><br/>
+python bed_generator.py --ipath <b>INPUT_REFERENCE</b> --opath <b>OUTPUT_DIR</b> --prefix <b>PREFIX</b>
+
+<br/><br/>
+Then use PREFIX.bed located file at OUTPUT_DIR
+""",
+"fasta_info" : """
+Reference file must be FASTA format
+<br/><br/>
+For whome do not know FASTA format, there will be shor description below
+<br/><br/>
+It usually ends with file extension as fa or fasta (i.e. E_coli.fa or human.fasta)
+<br/>
+File contents are look like below
+<br/><br/>
+>some_name_to_describe_this_species additional_description
+<br/>DNA sequence(or RNA, Protein)
+<br/><br/>
+Example below for E.Coli
+<br/><br/>
+>Ecoli TolC knockout strain
+<br/>ATGCCGATGACGATGATGATGATAGTAGATGATGAGATG
+<br/>CCGATGAGATAGACGATGAGTGGCCCAGTAGACGATAGA
+<br/>AACCCGAGTGAGACCC... (and so on)
+<br/><br/>
+The sequence field can be either multiple lines or a single line
+<br/>See details at https://en.wikipedia.org/wiki/FASTA_format<br/>
+<br/>
+Here, we have some constraints for fasta file<br/>
+<br/>
+I. At header field which is starts with '>' notation, this must equal to gene name we used for analysis
+<br/>
+II. The file name must be gene_name.gene.fa which means we have file extension as gene.fa
+<br/>
+III. Sequence must be in the linear form
+<br/>
+Example below
+<br/>
+Suppose we have to analyse <b>MYGENE</b>
+<br/>
+Then we have a file with name <b>MYGENE</b>.gene.fa<br/>
+And the contents are
+<br/><br/>
+><b>MYGENE</b>
+<br/>ATGAGTAGTAGTAGTCAGATAGACCATC.....
+<br/><br/>
+<b>NOT</b><br/><br/>
+><b>MYGENE</b><br/>
+ATGAGTAGT
+AGTAGTCAG
+ATAGACCAT
+C.....
+<br/><br/> Which is multiple lined sequence format<br/>
+"""
+}
+		QWidget.__init__(self)
+		self.edit = QtGui.QTextEdit()
+		self.layout = QtGui.QVBoxLayout()
+		self.setLayout(self.layout)
+		self.edit.setGeometry(QtCore.QRect(0,0,1000,500))
+		self.btn = QPushButton("Ok. I understood",self)
+		self.btn.setGeometry(QRect(865,560,120,30))
+		self.showDialog(desc_type)
+		self.layout.addWidget(self.edit)
+		self.layout.addWidget(self.btn)
+		self.btn.clicked.connect(self.close)
+		
+	def showDialog(self,desc_type):
+		if desc_type=="bed":
+			s = self.dialects["bed_info"]
+			self.edit.setReadOnly(True)
+			self.edit.setHtml(s)
+		elif desc_type == "sort":
+			s = self.dialects["sort_info"]
+			self.edit.setReadOnly(True)
+			self.edit.setHtml(s)
+		elif desc_type == "sample":
+			s = self.dialects["sample_info"]
+			self.edit.setReadOnly(True)
+			self.edit.setHtml(s)
+		elif desc_type == "fasta":
+			s = self.dialects["fasta_info"]
+			self.edit.setReadOnly(True)
+			self.edit.setHtml(s)
+### Option popup screen
+class OptionPopupScreen(QtGui.QWidget, popup_options.Ui_Form):
+	""" Required field here """
+	### ASSEMBLY
+	kmer_update = QtCore.pyqtSignal(str)
+	mink_occ = QtCore.pyqtSignal(str)
+	sort_on = QtCore.pyqtSignal(bool)
+	trim_on = QtCore.pyqtSignal(bool)
+	analysis_on = QtCore.pyqtSignal(bool)
+	assembly_on = QtCore.pyqtSignal(bool)
+	bed_path = QtCore.pyqtSignal(str)
+	### ALIGNMENT
+	match_score = QtCore.pyqtSignal(str) 
+	mismatch_score = QtCore.pyqtSignal(str)
+	gap_open = QtCore.pyqtSignal(str)
+	gap_extension = QtCore.pyqtSignal(str)
+
+	def __init__(self):
+		super(self.__class__,self).__init__()
+		self.setupUi(self)
+		### Browse button
+		self.pushButton_4.clicked.connect(self.browse_bedfile)
+		### Save changes
+		self.pushButton_10.clicked.connect(self.save_changes)
+		self.pushButton_11.clicked.connect(self.set_default)
+		self.pushButton.clicked.connect(lambda:self.description('kmer'))
+		self.pushButton_2.clicked.connect(lambda:self.description('mink'))
+		self.pushButton_3.clicked.connect(lambda:self.description('step'))
+		self.pushButton_5.clicked.connect(lambda:self.description('bed'))
+		self.pushButton_6.clicked.connect(lambda:self.description('match'))
+		self.pushButton_7.clicked.connect(lambda:self.description('mismatch'))
+		self.pushButton_8.clicked.connect(lambda:self.description('go'))
+		self.pushButton_9.clicked.connect(lambda:self.description('ge'))
+		self.screen = None
+		self.bedScreen = None
+	def browse_bedfile(self):
+		bedpath = QtGui.QFileDialog.getOpenFileName(self,"Browse BED file", "/" , "*")
+		self.lineEdit_17.setText(bedpath)
+	def description(self, dtype):
+		self.screen = DescriptionPopupScreen()
+		if dtype == 'kmer' :
+			s = "The length of k-mer. If you don't use bed file, then start/end sequence must be equal to this value"
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		elif dtype == 'mink' :
+			s = "The minimum k-mer occurence. If the count of k-mer are smaller than this value, those will be discarded."
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		elif dtype =='step':
+			s = "The analysis step. Check what you want. But proccess are streamlines so don't uncheck box in the middle"
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		elif dtype == 'bed':
+			s = self.screen.dialects['bed_info']
+			
+			
+			self.screen.setGeometry(QRect(0,0,1000,600))
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setHtml(s)
+
+		elif dtype == 'match' :
+			s = 'Alignement match score.\nValue is integer.'
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		elif dtype == 'mismatch' :
+			s = 'Alignement mis-match score.\nValue is integer.'
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		elif dtype == 'go' :
+			s = 'Alignement gap open penalty.\nValue is integer.'
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		elif dtype == 'ge' :
+			s = 'Alignement gap extension penalty.\nValue is integer.'
+			self.screen.edit.setReadOnly(True)
+			self.screen.edit.setText(s)
+		self.screen.show()
+	def set_default(self):
+		self.lineEdit_3.setText('63')
+		self.lineEdit_5.setText('3')
+		self.checkBox.setChecked(True)
+		self.checkBox_2.setChecked(True)
+		self.checkBox_3.setChecked(True)
+		self.checkBox_4.setChecked(True)
+		self.lineEdit_17.setText('')
+		self.lineEdit_9.setText('1')
+		self.lineEdit_11.setText('3')
+		self.lineEdit_13.setText('5')
+		self.lineEdit_15.setText('3')
+	def save_changes(self):
+		choice = QtGui.QMessageBox.question(self,"Save Changes", "Are you sure to save changes and exit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+		if choice == QtGui.QMessageBox.Yes:
+			self.change_vals()
+			self.close()
+		else:
+			self.clear_updates()
+			self.close()
+	def change_vals(self):
+		kmer_update_val = str(self.lineEdit_3.text())
+		mink_occ_val = str(self.lineEdit_5.text())
+		sort_on_val = bool(self.checkBox.isChecked())
+		trim_on_val = bool(self.checkBox_2.isChecked())
+		assembly_on_val = bool(self.checkBox_3.isChecked())
+		analysis_on_val = bool(self.checkBox_4.isChecked())
+		bed_path_val = str(self.lineEdit_17.text())
+		match_score_val = str(self.lineEdit_9.text())
+		mismatch_score_val = str(self.lineEdit_11.text())
+		gap_open_val = str(self.lineEdit_13.text())
+		gap_extension_val = str(self.lineEdit_15.text())
+		self.kmer_update.emit(kmer_update_val)
+		self.mink_occ.emit(mink_occ_val)
+		self.sort_on.emit(sort_on_val)
+		self.trim_on.emit(trim_on_val)
+		self.assembly_on.emit(assembly_on_val)
+		self.analysis_on.emit(analysis_on_val)
+		self.bed_path.emit(bed_path_val)
+		self.match_score.emit(match_score_val)
+		self.mismatch_score.emit(mismatch_score_val)
+		self.gap_open.emit(gap_open_val)
+		self.gap_extension.emit(gap_extension_val)
+
+	def clear_updates(self):
+		self.kmer_update = '63'
+		self.mink_occ = '3'
+		self.sort_on = True
+		self.trim_on = True
+		self.analysis_on = True
+		self.assembly_on = True
+		self.bed_path = None
+		self.match_score = '1'
+		self.mismatch_score = '3'
+		self.gap_open = '5'
+		self.gap_extension = '3'
+
+### Main UI class
+class MainClass(QtGui.QMainWindow, window.Ui_MainWindow):
+	def __init__(self):
+		super(self.__class__,self).__init__()
+		self.setupUi(self)
+
+		### Required option fields
+		self.pushButton_5.clicked.connect(self.browse_sortinfo)
+		self.pushButton_6.clicked.connect(self.browse_sampleinfo)
+		self.pushButton_4.clicked.connect(self.browse_rawpath)
+		self.pushButton_10.clicked.connect(self.browse_refpath)
+		self.pushButton_7.clicked.connect(self.browse_outpath)
+
+		### Popup Options
+		self.pushButton_9.clicked.connect(self.showPopupScreen)
+		self.pushButton_11.clicked.connect(lambda:self.show_format(desc_type="sort"))
+		self.pushButton_12.clicked.connect(lambda:self.show_format(desc_type="sample"))
+		self.pushButton_13.clicked.connect(lambda:self.show_format(desc_type="fasta"))
+
+		### Command buttons
+		self.pushButton_2.clicked.connect(self.quit_application)
+		self.pushButton.clicked.connect(self.abort_application)
+		self.pushButton_3.clicked.connect(self.run_application)
+		self.pushButton_8.clicked.connect(self.configure_application)
+		self.popup_screen = None
+		self.helper = None
+		self.option_dict = {}
+		self.kmer_update = '63'
+		self.mink_occ = '3'
+		self.sort_on = True
+		self.trim_on = True
+		self.analysis_on = True
+		self.assembly_on = True
+		self.bed_path = None
+		self.match_score = '1'
+		self.mismatch_score = '3'
+		self.gap_open = '5'
+		self.gap_extension = '3'
+		self.log_screen = self.textEdit
+
+		self.raw_path = None
+		self.sort_info = None
+		self.sample_info = None
+		self.ref_path = None
+		self.source_seq = None
+		self.sink_seq = None
+		self.output_path = None
+		self.config_from_bed = False
+		self.bed_path = None
+
+		### Some assertion field if any one of enry here false, program will not run
+		self.kmer_length_assert = False
+		self.bed_assert = False
+		self.sort_info_assert = False
+		self.sample_info_assert = False
+		self.ref_path_assert = False
+		self.raw_path_assert = False
+		self.output_path_assert = False
+	### Show popup screen window
+	def showPopupScreen(self):
+		self.popup_screen = OptionPopupScreen()
+		self.popup_screen.kmer_update.connect(self.changeProgValKmer)
+		self.popup_screen.mink_occ.connect(self.changeProgValMinOcc)
+		self.popup_screen.sort_on.connect(self.changeProgValSort)
+		self.popup_screen.trim_on.connect(self.changeProgValTrim)
+		self.popup_screen.analysis_on.connect(self.changeProgValAnal)
+		self.popup_screen.assembly_on.connect(self.changeProgValAssem)
+		self.popup_screen.bed_path.connect(self.changeProgValBed)
+		self.popup_screen.match_score.connect(self.changeProgValMatch)
+		self.popup_screen.mismatch_score.connect(self.changeProgValMisMatch)
+		self.popup_screen.gap_open.connect(self.changeProgValGapO)
+		self.popup_screen.gap_extension.connect(self.changeProgValGapE)
+		self.popup_screen.show()
+
+	#### Update option changes
+	def changeProgValKmer(self,value):
+		self.kmer_update = value
+	def changeProgValMinOcc(self,value):
+		self.mink_occ = value
+	def changeProgValSort(self,value):
+		self.sort_on = value
+	def changeProgValTrim(self,value):
+		self.trim_on = value
+	def changeProgValAnal(self,value):
+		self.analysis_on = value
+	def changeProgValAssem(self,value):
+		self.assembly_on = value
+	def changeProgValBed(self,value):
+		self.bed_path = value
+	def changeProgValMatch(self, value):
+		self.match_score = value
+	def changeProgValMisMatch(self,value):
+		self.mismatch_score = value
+	def changeProgValGapO(self, value):
+		self.gap_open = value
+	def changeProgValGapE(self, value):
+		self.gap_extension = value
+
+	### Browsings 
+	def browse_rawpath(self) :
+		filepath = QtGui.QFileDialog.getExistingDirectory(self.centralwidget, "Browse RAW NGS sequencing path")
+
+		self.raw_path = str(filepath)
+		self.lineEdit_7.setText(filepath)
+
+	def browse_sortinfo(self) :
+		sort_info_path = QtGui.QFileDialog.getOpenFileName(self.centralwidget, "Browse Sorting config file" , "/" , "*")
+		self.sort_info = str(sort_info_path)
+		self.lineEdit_8.setText(sort_info_path)
+
+	def browse_sampleinfo(self) :
+		sample_info_path = QtGui.QFileDialog.getOpenFileName(self.centralwidget,"Browse Sample info file" , "/" , "*")
+		self.sample_info = str(sample_info_path)
+		self.lineEdit_9.setText(sample_info_path)
+
+	def browse_refpath(self):
+		refpath = QtGui.QFileDialog.getExistingDirectory(self.centralwidget , "Browse Refence location")
+		self.ref_path = str(refpath)
+		self.lineEdit_14.setText(refpath)
+
+	def browse_outpath(self):
+		filepath = QtGui.QFileDialog.getExistingDirectory(self.centralwidget, "Browse RAW NGS sequencing path")
+
+		self.output_path = str(filepath)
+		self.lineEdit_12.setText(filepath)
+	### Format helper showing script
+	def show_format(self, desc_type=None):
+		self.helper = DescriptionPopupScreen(desc_type=desc_type)
+		self.helper.setGeometry(QRect(0,0,1000,600))
+		self.helper.setWindowTitle(desc_type.upper() + " Information")
+		self.helper.show()
+
+	def configure_application(self):
+
+		### Default options on main screen
+
+		self.option_dict["ksize"] = int(self.kmer_update)
+		self.option_dict["mink_occ"] = int(self.mink_occ)
+
+		self.option_dict["raw_path"] = self.raw_path
+
+		if self.raw_path == None:
+			self.raw_path_assert = None
+
+		self.option_dict["sort_info"] = self.sort_info
+
+		if self.sort_info == None or self.sort_info == '':
+			self.sort_info_assert = True
+
+		self.option_dict["sample_info"] = self.sample_info
+
+		if self.sample_info == None or self.sample_info == '' :
+			self.sample_info_assert = True
+
+		self.option_dict["source_seq"] = self.source_seq
+		self.option_dict["sink_seq"] = self.sink_seq
+		
+		if self.source_seq == None or self.sink_seq == None :
+			self.config_from_bed = True
+			
+		### Check if bed file avail if not then Tell log message
+		if self.bed_path == None and self.config_from_bed == True:
+			self.bed_assert = True
+		if self.bed_path != None and self.config_from_bed == True:
+			self.option_dict["from_bed"] = True
+
+		if self.config_from_bed == False and self.bed_path == None:
+			self.option_dict["from_bed"] = False
+			if len(self.source_seq) != int(self.kmer_update):
+				self.kmer_length_assert = True
+			if len(self.sink_seq) != int(self.kmer_update):
+				self.kmer_length_assert = True
+		self.option_dict["ref_path"] = self.ref_path
+		if self.ref_path == None:
+			self.ref_path_assert = None
+
+
+
+		self.option_dict["out_path"] = self.output_path
+		if self.output_path == None:
+			self.output_path_assert == True
+
+		### Options in pop up screen
+		self.option_dict["match"] = self.match_score
+		self.option_dict["mismatch"] = self.mismatch_score
+		self.option_dict["gap_open"] = self.gap_open
+		self.option_dict["gap_extension"] = self.gap_extension
+
+		"""if self.kmer_length_assert == False and \
+			self.bed_assert == False and \
+			self.sort_info_assert == False and \
+			self.sample_info_assert == False and \
+			self.ref_path_assert == False and \
+			self.raw_path_assert == False and \
+			self.output_path_assert == False :
+			self.show_configuration()
+		"""
+		if self.raw_path_assert == False:
+			self.show_configuration()
+	def show_configuration(self):
+		string = """\n[CONFIGURATION INFORMATION]
+############################################################
+ASSEMBLY OPTIONS
+
+NGS path              : {}
+K-mer size            : {}
+Min k-mer occ         : {}
+Start sequence        : {}
+End sequence          : {}
+Sort information      : {}
+Sample information    : {}
+
+ALIGNMENT OPTIONS
+
+Reference directory   : {}
+BED file location     : {}
+Match score           : {}
+Mismatch score        : {}
+Gap open penalty      : {}
+Gap extension penalty : {}
+
+OTHERS
+
+Output directory      : {}
+Analysis Steps 
+         Sort         : {}
+         Trim         : {}
+         Assembly     : {}
+         DownStream   : {}
+############################################################\n
+""".format(self.raw_path,self.kmer_update, self.mink_occ,  self.source_seq, self.sink_seq, self.sort_info, self.sample_info,self.ref_path,self.bed_path,self.match_score, self.mismatch_score, self.gap_open, self.gap_extension, self.output_path,self.sort_on, self.trim_on, self.assembly_on, self.analysis_on)
+		self.log_screen.append(string)
+	### Misc
+	def set_source(self) :
+		self.source_seq = str(self.lineEdit_10.text())
+		if self.source_seq == None or self.source_seq == '':
+			self.source_seq = None
+	def set_sink(self):
+		self.sink_seq = str(self.lineEdit_11.text())
+		if self.sink_seq == None or self.sink_seq == '':
+			self.sink_seq = None
+
+	def run_application(self):
+		self.program = PipelineThread(self.option_dict, self.textEdit)
+		self.connect(self.program,SIGNAL('finished()'),self.done)
+		self.program.start()
+
+	def done(self):
+		QtGui.QMessageBox.information(self, "Done!" , "Done Analysis!!")
+
+	def abort_application(self):
+		choice = QtGui.QMessageBox.question(self.centralwidget, "Abort program", "Are you sure to abort?" , QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+
+		if choice == QtGui.QMessageBox.Yes:
+#			self.pipe_thread.stop()
+			self.pipeline_thread.quit()
+			self.pipeline_thread.wait()
+			QtGui.QMessageBox.information(self, "Abort!", "Aborted...")
+			#print "Aborting..."
+		else:
+			pass
+	def quit_application(self):
+		choice = QtGui.QMessageBox.question(self.centralwidget,"Exit Program", "Are you sure to exit the program?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+		if choice == QtGui.QMessageBox.Yes:
+			sys.exit()
+		else:
+			pass
+if __name__ == "__main__":
+	app = QtGui.QApplication(sys.argv)
+	form = MainClass()
+	form.show()
+	app.exec_()
