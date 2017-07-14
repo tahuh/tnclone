@@ -2,7 +2,7 @@
 TnClone: High-throughput clonal analysis using Tn5-mediated library construction and _de novo_ assembly
 
 ## NOTE
-TnClone's manuscript is under preparation. Please do not use/modify this code before publication.
+TnClone's manuscript is under preparation. Please do not copy/modify this code before publication.
 
 ## Getting started
 
@@ -32,7 +32,11 @@ Or download this repository directly by clicking download button above and unzip
 
 #### Windows users
 
-For Windows users download this program by clicking download button above and unzip the archive.
+Due to technical issue of Github page when uploading large data please visit the link below to download Windows version
+
+Link : https://drive.google.com/drive/folders/0B8YOM4cMgTXSX0Nmc0RtcGQ2RGs?usp=sharing
+
+Download all files and folders uploaded in the link above
 
 ### How to use
 
@@ -45,7 +49,7 @@ Here we asseume your path to TnClone is ~/Downloads/TnClone
 Navigate to tnclone sub directory by typing
 
 ```
-cd ~/Downloads/TnClone/linux/
+cd ~/Downloads/TnClone/tnclone/linux
 ```
 
 if you have naviaged to the path above then type
@@ -125,12 +129,6 @@ Options:
                         Draw coverage plot before analyis. 0 for no 1 for yes.
                         default = 0
 ```
-
-#### Windows user
-
-Due to technical issue of Github page when uploading large data please visit the link below to download Windows version
-
-Link : https://drive.google.com/drive/folders/0B8YOM4cMgTXSX0Nmc0RtcGQ2RGs?usp=sharing
 
 
 
