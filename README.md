@@ -1,6 +1,9 @@
 # TnClone
 TnClone: High-throughput clonal analysis using Tn5-mediated library construction and _de novo_ assembly
 
+## NOTE
+TnClone's manuscript is under preparation. Please do not use/modify this code before publication.
+
 ## Getting started
 
 ### Prerequisites
