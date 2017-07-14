@@ -128,6 +128,12 @@ Options:
 
 #### Windows user
 
+Due to technical issue of Github page when uploading large data please visit the link below to download Windows version
+
+Link : https://drive.google.com/drive/folders/0B8YOM4cMgTXSX0Nmc0RtcGQ2RGs?usp=sharing
+
+
+
 After downloading TnClone please go to your directory where TnClone is installed
 
 Here we asseme your directory is  C:\\User\\Downloads
