@@ -878,9 +878,12 @@ class PipelineThread(QtCore.QThread):
 		x = int(self.options["mismatch_score"])
 		g = int(self.options["gap_open"])
 		e = int(self.options["gap_extension"])
-
-		outpath = abspath(self.options["out_path"])
-		refpath = abspath(self.options["ref_path"])
+		try:
+			outpath = abspath(self.options["out_path"])
+			refpath = abspath(self.options["ref_path"])
+		except KeyError:
+			print "TnClone cannot configure mandatory fields."
+			print "Please check if you pressed configure button"
 
 		log = []
 
