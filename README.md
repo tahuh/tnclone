@@ -142,6 +142,10 @@ There is an executable file called 'tnclone'.
 
 By double clicking this icon, tnclone will execute with some command line prompt automatically open.
 
+## Test data
+Use test data in data directory.
+FASTQ files are already trimmed so user only need to check assembly and sort option and turn off sort and trim option
+
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
 * Byungjin Hwang  - *Data analysis* -
