@@ -716,13 +716,20 @@ class PipelineThread(QtCore.QThread):
 
 	def _run_alignment(self):
 		#XStream.stdout().messageWritten.connect(self.message.append)
-		m = int(self.options["match_score"])
-		x = int(self.options["mismatch_score"])
-		g = int(self.options["gap_open"])
-		e = int(self.options["gap_extension"])
-
 		outpath = abspath(self.options["out_path"])
-		refpath = abspath(self.options["ref_path"])
+		if self.options["ref_path"] == None:
+			m = int(self.options["match_score"])
+			x = int(self.options["mismatch_score"])
+			g = int(self.options["gap_open"])
+			e = int(self.options["gap_extension"])
+			refpath = False
+		else:
+			m = int(self.options["match_score"])
+			x = int(self.options["mismatch_score"])
+			g = int(self.options["gap_open"])
+			e = int(self.options["gap_extension"])
+
+			refpath = abspath(self.options["ref_path"])
 
 		log = []
 
@@ -874,16 +881,16 @@ class PipelineThread(QtCore.QThread):
 				launch(script4)
 	
 	def _single_mode(self):
+		outpath = abspath(self.options["out_path"])
 		m = int(self.options["match_score"])
 		x = int(self.options["mismatch_score"])
 		g = int(self.options["gap_open"])
 		e = int(self.options["gap_extension"])
 		try:
-			outpath = abspath(self.options["out_path"])
 			refpath = abspath(self.options["ref_path"])
-		except KeyError:
-			print "TnClone cannot configure mandatory fields."
-			print "Please check if you pressed configure button"
+		except :
+			refpath = False
+		
 
 		log = []
 
