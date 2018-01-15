@@ -146,6 +146,13 @@ By double clicking this icon, tnclone will execute with some command line prompt
 Use test data in data directory.
 FASTQ files are already trimmed so user only need to check assembly and sort option and turn off sort and trim option
 
+## Some troubleshoot solution
+If TnClone fails to assembly, please check if your sequencing depth is enough. <br>
+Recently TnClone has shown fails when sequening depth is too low ( < 400 ). <br>
+
+If one see NO SEED in output, then please select other region of seeds <br>
+Please avoid repetitive region as seed/terminal sequence<br>
+
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
 * Byungjin Hwang  - *Data analysis* -
