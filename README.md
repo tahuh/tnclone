@@ -148,7 +148,10 @@ FASTQ files are already trimmed so user only need to check assembly and sort opt
 
 ## Some troubleshoot solution
 If TnClone fails to assembly, please check if your sequencing depth is enough. <br>
-Recently TnClone has shown fails when sequening depth is too low ( < 400 ). <br>
+Recently TnClone has shown fails when sequening depth is too low ( < 400 ). <br><br>
+Some options one can try <br>
+1. Change size of k-mer smaller than current one(such as 55 or 47. Use odd number)<br>
+2. If 1 fails then change min kmer occurence in Additional options tab to zero<br>
 
 If one see NO SEED in output, then please select other region of seeds <br>
 Please avoid repetitive region as seed/terminal sequence<br>
