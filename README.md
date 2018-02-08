@@ -59,6 +59,8 @@ python tnclone.py
 ```
 Will give you a interface
 
+User <b>MUST</b> execute above command where TnClone is installed!!!
+
 For users who have experience using command line based analysis, we have tnclone-cmd.py under same directory where tnclone.py located
 
 Below described options for TnClone's command line version
@@ -132,7 +134,7 @@ Options:
 
 
 
-After downloading TnClone please go to your directory where TnClone is installed
+After downloading TnClone one <b>MUST</b> go to your directory where TnClone is installed
 
 Here we asseme your directory is  C:\\User\\Downloads
 
