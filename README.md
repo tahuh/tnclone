@@ -181,8 +181,18 @@ As mentioned above, forget about typing the '$' sign
 /Directory/Where/You/Have/Installed/TnClone$ ./wakeup.sh
 ```
 Eventhough you have tested above procedure and gets error, please check https://mafft.cbrc.jp/alignment/software/installation_without_root.html
-for complie mafft
-Then perform TnClone
+for complie mafft<br>
+Also, if JNI error occurs then navigate msa2vcf at 
+http://lindenb.github.io/jvarkit/
+Then download jvarkit and follow installation instructions there.<br>
+Copy msa2vcf.jar by command line below<br>
+Suppose you have downloaded jvarkit at /home/username/Downaloads and TnClone is under /home/username/Downloads/tnclone
+```
+$ cp /home/username/Downloads/dist/msa2vcf.jar /home/username/Downloads/tnclone/linux
+```
+
+Then perform TnClone<br>
+Hope this helps!!!!
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
 * Byungjin Hwang  - *Data analysis* -
