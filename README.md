@@ -147,15 +147,43 @@ Use test data in data directory.
 FASTQ files are already trimmed so user only need to check assembly and sort option and turn off sort and trim option
 
 ## Some troubleshoot solution
+### TnClone FAILs to assembly!!!
 If TnClone fails to assembly, please check if your sequencing depth is enough. <br>
-Recently TnClone has shown fails when sequening depth is too low ( < 400 ). <br><br>
-Some options one can try <br>
-1. Change size of k-mer smaller than current one(such as 55 or 47. Use odd number)<br>
-2. If 1 fails then change min kmer occurence in Additional options tab to zero<br>
-
-If one see NO SEED in output, then please select other region of seeds <br>
+In TnClone paper, assembly was failed when sequening depth is less than 400(< 400X). <br><br>
+To solve this problem here are two options one can try <br>
+1. Use Diagnosis plot to see if (1) your sequencing depth was enough (2) the region of interest is properly sequenced.<br>
+2. Change size of k-mer smaller than current one(such as 55 or 47. Use odd number)<br>
+3. If 2 fails then change min kmer occurence in Additional options tab to zero<br>
+### TnClone shows NO SEED in output file!!!
+If one see NO SEED in output(usually 8 bytes file size of .contig file), then please select other region of seeds <br>
 Please avoid repetitive region as seed/terminal sequence<br>
-
+### TnClone result has 0 bytes outfile
+This isssue says your assembly has failed. Please see <b>TnClone FAILs to assembly</b> section</br>
+### TnClone cannot recognize the path(directory) for required fields
+There are two main reasons that TnClone cannot recognize the path(directory)<br>
+1. There is *Really NO such path*
+2. Please check if you have typed the path directly to the screen.<br>
+   TnClone ONLY accepts required directories selected by *BROWSE* button<br>
+3. For windows users please check if your path separator ("\" sign) is set twice.<br>
+   For example, C:\Some\Directory\Here\ will NOT work
+   C:\\Some\\Directory\\Here will work
+### TnClone says "QThread: Program exited while thread is running." when exit the program
+This issue was confirmed to be okay when the developers analysed data.<br>
+But will be fixed soon
+### Diagnosis does not work!
+TnClone utilized bwa and samtools for diagnosis which is installed in the exact same path where tnclone.py lies.<br>
+So please *Execute TnClone where tnclone.py is installed*<br>
+### Trmming does not work!
+As same as above please *execute TnClone where tnclone.py is installed*
+### Even I have executed TnClone where the tnclone.py, JNI Error is occurred or diagnosis/trimming do not occur!
+This is usually happens on Linux system since user do not have permission to execute auxillary files required TnClone to perform.<br>
+Please type the command where the TnClone is installed<br>
+As mentioned above, forget about typing the '$' sign
+'''
+/Directory/Where/You/Have/Installed/TnClone$ chmod +x wakeup.sh
+/Directory/Where/You/Have/Installed/TnClone$ ./wakeup.sh
+'''
+Then perform TnClone
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
 * Byungjin Hwang  - *Data analysis* -
@@ -170,5 +198,3 @@ We also thanks to Junho Jung's lab for kind donation of their scFv samples.
 
 ## Contact
 For any other issue while using TnClone, please contact via team.tnclone@gmail.com
-
-
