@@ -164,7 +164,7 @@ There are two main reasons that TnClone cannot recognize the path(directory)<br>
 1. There is *Really NO such path*
 2. Please check if you have typed the path directly to the screen.<br>
    TnClone ONLY accepts required directories selected by *BROWSE* button<br>
-3. For windows users please check if your path separator ("\" sign) is set twice.<br>
+3. For windows users please check if your path separator ("\\" sign) is set twice(i.e. \\\\.<br>
 ### TnClone says "QThread: Program exited while thread is running." when exit the program
 This issue was confirmed to be okay when the developers analysed data.<br>
 But will be fixed soon
