@@ -180,6 +180,8 @@ As mentioned above, forget about typing the '$' sign
 /Directory/Where/You/Have/Installed/TnClone$ chmod +x wakeup.sh
 /Directory/Where/You/Have/Installed/TnClone$ ./wakeup.sh
 ```
+Eventhough you have tested above procedure and gets error, please check https://mafft.cbrc.jp/alignment/software/installation_without_root.html
+for complie mafft
 Then perform TnClone
 ## Authors
 * Sunghoon Heo - *Initially developed this software* -
