@@ -11,7 +11,9 @@ TnClone's manuscript is under preparation. Please do not copy/modify this code b
 JAVA 1.7 or higher
 Python 2.7
 
-JAVA download and installation guides can be easily found at web.
+JAVA download and installation guides can be easily found at web.<br>
+
+Please install PyQt4 following instructions here http://pyqt.sourceforge.net/Docs/PyQt4/installation.html<br>
 
 To download python go to https://www.python.org/ and download and install python
 
