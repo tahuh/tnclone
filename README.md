@@ -198,8 +198,8 @@ $ cp /home/username/Downloads/dist/msa2vcf.jar /home/username/Downloads/tnclone/
 Then perform TnClone<br>
 Hope this helps!!!!
 ## Authors
-* Sunghoon Heo - *Initially developed this software* -
-* Byungjin Hwang  - *Data analysis* -
+* Sunghoon Heo - *Initially developed/maintaining this software* -
+* Byungjin Hwang  - *Contributor* -
 
 ## License
 GPL v3
