@@ -2,8 +2,8 @@
 TnClone: High-throughput clonal analysis using Tn5-mediated library construction and _de novo_ assembly
 
 ## NOTE
-TnClone's manuscript is under preparation. Please do not copy/modify this code before publication.
-
+TnClone's manuscript is under preparation. Please do not copy/modify this code before publication.<br>
+TnClone source code is now maintained by Bang's Lab's official [github page](https://github.com/synbiolab-bionifo/TnClone)
 ## Getting started
 
 ### Prerequisites
