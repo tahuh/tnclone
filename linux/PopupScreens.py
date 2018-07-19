@@ -37,9 +37,10 @@ MYGENE	12<br/><br/>
 There are 5 columns<br/></br><br/>
 First  Column  : Gene name ( We recommend to use 6  chracters )<br/>
 Second Column  : Number of Samples to analyse<br/>
-Third  Column  : Tn5 specific barcode (8-mers)<br/>
-Fourth Column  : The RAW NGS read file name (forward direction)<br/>
-Fifth  Column  : The RAW NGS read file name (reverse direction)<br/><br/><br/>
+Third  Column  : Tn5 specific forward index barcode sequence (8-mers)<br/>
+Fourth Column  : Tn5 specific reverse index barcode sequence (8-mers)<br/>
+Fifth Column   : The RAW NGS read file name (forward direction)<br/>
+Sixth  Column  : The RAW NGS read file name (reverse direction)<br/><br/><br/>
 
 <b>CAUTION !!!</b><br/><br/>
 I. All columns must be TAB separated<br/>
@@ -53,7 +54,7 @@ Reverse side NGS files 1_2.fastq,2_2.fastq,3_2.fastq<br/><br/>
 
 Then for this sample, we have format below<br/><br/>
 
-MYGENE\t12\tGTCCATCA\t1_1.fastq,2_1.fastq,3_1.fastq\t1_2.fastq,2_2.fastq,3_2.fastq<br/>
+MYGENE\t12\tGTCCATCA\t\tGTCCATCA\t1_1.fastq,2_1.fastq,3_1.fastq\t1_2.fastq,2_2.fastq,3_2.fastq<br/>
 """,
 "bed_info" : """The BED file ( region file ) cusually contains 4 columns
 <br/>
