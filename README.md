@@ -10,6 +10,8 @@ TnClone's manuscript is under preparation. Please do not copy/modify this code b
 
 JAVA 1.7 or higher
 Python 2.7
+matplotlib
+numpy
 
 JAVA download and installation guides can be easily found at web.<br>
 
