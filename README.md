@@ -74,7 +74,7 @@ TnClone CUI version
 
 Options:
   -h, --help            show this help message and exit
-  --ngs_path=NGS_PATH   Raw NGS result path
+  --ngs_path=NGS_PATH   Raw NGS result path. The original sequencing read file directory/path which is not sorted.
   --sort_file=SORT_FILE
                         Sorting information containing file.
   --sample_file=SAMPLE_FILE
