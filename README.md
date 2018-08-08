@@ -12,6 +12,7 @@ JAVA 1.7 or higher
 Python 2.7
 matplotlib
 numpy
+HTSeq
 
 JAVA download and installation guides can be easily found at web.<br>
 
