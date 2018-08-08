@@ -8,11 +8,11 @@ TnClone's manuscript is under preparation. Please do not copy/modify this code b
 
 ### Prerequisites
 
-JAVA 1.7 or higher
-Python 2.7
-matplotlib
-numpy
-HTSeq
+JAVA 1.7 or higher<br>
+Python 2.7<br>
+matplotlib<br>
+numpy<br>
+HTSeq<br>
 
 JAVA download and installation guides can be easily found at web.<br>
 
