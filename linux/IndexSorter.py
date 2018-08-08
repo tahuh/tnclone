@@ -43,15 +43,16 @@ class Sorter(object):
 			for line in config_file :
 				data = line.rstrip().split("\t")
 				try:
-					assert len(data) == 5
+					assert len(data) == 6
 				except AssertionError :
 					raise ValueError("Error in sorting configuration file. Please check configuration file")
 
 				gene = data[0]
 				n_samples = int(data[1])
-				tn5_index = data[2]
-				fwd_fqfile_names = data[3].split(",")
-				rev_fqfile_names = data[4].split(",")
+				tn5_fwd_index = data[2]
+				tn5_rev_index = data[3]
+				fwd_fqfile_names = data[4].split(",")
+				rev_fqfile_names = data[5].split(",")
 				fwd_fqfiles_full_paths = [ input_dir + "/" + fname for fname in fwd_fqfile_names ]
 				rev_fqfiles_full_paths = [ input_dir + "/" + fname for fname in rev_fqfile_names ]
 
@@ -112,7 +113,9 @@ class Sorter(object):
 							qual2_recover = qual2
 							if tn5_specific1 in seq1 and tn5_specific2 in seq2 :
 								possible_bcd = seq2.split(tn5_specific1)[0]
-								if possible_bcd == tn5_index :
+								possible_bcd1 = seq1.split(tn5_specific1)[0]
+								
+								if (possible_bcd == tn5_rev_index) and (possible_bcd1 == tn5_fwd_index):
 									fwd_loc = seq1.find(tn5_specific1) + len(tn5_specific1)
 									rev_loc = seq2.find(tn5_specific1) + len(tn5_specific1)
 									seq1_recover = seq1[fwd_loc:]
