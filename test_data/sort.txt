@@ -1,0 +1,1 @@
+Sample	1	TATACTAC	ACAACCGA	R1.fastq.gz	R2.fastq.gz
