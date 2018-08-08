@@ -1,1 +1,0 @@
-SAMPLE1 1 R1.fastq  F2.fastq
