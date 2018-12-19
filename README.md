@@ -3,6 +3,9 @@ TnClone: High-throughput clonal analysis using Tn5-mediated library construction
 
 ## NOTE
 TnClone's manuscript is under preparation. Please do not copy/modify this code before publication.
+## Before getting started
+Please read throughly the manual of version user using. 
+Almost all information including file format are described in manual.
 
 ## Getting started
 
