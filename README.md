@@ -152,6 +152,44 @@ There is an executable file called 'tnclone'.
 
 By double clicking this icon, tnclone will execute with some command line prompt automatically open.
 
+## Output format
+Basically TnClone generates assembled contigs in "assem" directory and file name contain "final" is final assembly sequence.
+If TnClone has reference sequence as input TnClone will generate summary file in "report" directory and variant information in "vcf" directory.
+More detailed aligned information are located under "sam" directory for user to use if reference sequence is provided.
+
+Summary output format is described below
+```
+[Contig Number Summary]
+Q03JI6	1(C=1:I/D=0)	1(C=1:I/D=0)	0(C=0:I/D=0)	0(C=0:I/D=0)
+[DNA ERROR/FREE SUMMARY]
+Q03JI6	(E)	(E)	(NOINFO)	(NOINFO)
+[PROTEIN ERROR/FREE SUMMARY]
+Q03JI6	(E/E/T)	(E/E/T)	(NOINFO)	(NOINFO)
+```
+The output summary consist of three fields (contig number summary, DNA error free summary, protein error free summary).
+For contig number summary the first column is always the gene name specified for TnClone's input and the number of samples analyzed are follows.
+For each column following gene column, the first number is total number of contigs of assembly. The numbers in parenthesis is detailed description of contigs. Letter with "C" is "confident sequence", letter with "I/D" is "indel sequence" and letter with "NC" is "not confident sequence". 
+For dna/protein error free summary field, character "E" tells given contig/protein is error compared to reference and "T" tells given contig/protein is error free.
+
+Variant format is described below
+```
+#VCF(simple version.)
+#INFO:The 'short' mark in INFO field means the query is shorter than reference. INDEL or large soft clipping
+#INFO:The 'homopoly' mark in INFO field means there is homopolymer region in refrence. These variant might be caused by sequencing errors.
+#REF	QUERY	POS	REF	ALT	INFO
+B3DR64	contig:115	111	A	C	SHORT
+B3DR64	contig:115	904	C	A	SHORT
+B3DR64	contig:115	1191	C	T	SHORT
+B3DR64	contig:115	1674	A	G	SHORT
+B3DR64	contig:99	111	A	C	SHORT
+B3DR64	contig:99	904	C	A	SHORT
+B3DR64	contig:99	1191	C	T	SHORT
+B3DR64	contig:99	1674	A	G	SHORT
+```
+TnClone mimics VCF format as variant output but modified way. Each line consist of reference sequence name, contig name, variant position, reference base, contig base and extra information.
+If indel present, reference will be dash(-) for insertion and contig base will be dash(-) for deletion.
+
+See more detailed information in manual text.
 ## Test data
 Use test data in data directory.
 FASTQ files are already trimmed so user only need to check assembly and sort option and turn off sort and trim option
