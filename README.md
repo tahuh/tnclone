@@ -177,14 +177,19 @@ Variant format is described below
 #INFO:The 'short' mark in INFO field means the query is shorter than reference. INDEL or large soft clipping
 #INFO:The 'homopoly' mark in INFO field means there is homopolymer region in refrence. These variant might be caused by sequencing errors.
 #REF	QUERY	POS	REF	ALT	INFO
-B3DR64	contig:115	111	A	C	SHORT
-B3DR64	contig:115	904	C	A	SHORT
-B3DR64	contig:115	1191	C	T	SHORT
-B3DR64	contig:115	1674	A	G	SHORT
-B3DR64	contig:99	111	A	C	SHORT
-B3DR64	contig:99	904	C	A	SHORT
-B3DR64	contig:99	1191	C	T	SHORT
-B3DR64	contig:99	1674	A	G	SHORT
+A0Q5Y3	contig:375	1600	A	C	SHORT
+A0Q5Y3	contig:375	2368	T	C	SHORT
+A0Q5Y3	contig:375	2731	T	C	SHORT
+A0Q5Y3	contig:375	3528	C	T	SHORT
+A0Q5Y3	contig:375	4269	T	C	SHORT
+A0Q5Y3	contig:375	4848	A	C	SHORT
+A0Q5Y3	contig:375	4879	C	T	SHORT
+A0Q5Y3	contig:141	2368	T	C	SHORT
+A0Q5Y3	contig:141	2731	T	C	SHORT
+A0Q5Y3	contig:141	3528	C	T	SHORT
+A0Q5Y3	contig:141	4269	T	C	SHORT
+A0Q5Y3	contig:141	4848	A	C	SHORT
+A0Q5Y3	contig:141	4879	C	T	SHORT
 ```
 TnClone mimics VCF format as variant output but modified way. Each line consist of reference sequence name, contig name, variant position, reference base, contig base and extra information.
 If indel present, reference will be dash(-) for insertion and contig base will be dash(-) for deletion.
