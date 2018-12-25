@@ -82,6 +82,9 @@ class VariantCaller:
 			pos = int(data[3])
 			cigar = data[5]
 			seq = data[9]
+			if "FRAME" in query:
+				if "FRAME_BAD" in query:
+					continue
 			short = False
 			query_len_info_list.append("#Query:%s LN:%d"%(query,len(seq)))
 			
