@@ -868,7 +868,10 @@ class PipelineThread(QtCore.QThread):
 				for id , desc ,seq in contig_parser.parse():
 					for frame in [0,1,2]:
 						caa = translate(seq[frame:])
-						aa_contigf.write(">" + id + "-frame:" + str(frame) + "\n" + caa + "\n")
+						if len(seq[frame:]) % 3 == 0 :
+							aa_contigf.write(">" + id + "-frame:" + str(frame) + ":FRAME_OK\n" + caa + "\n")
+						else:
+							aa_contigf.write(">" + id + "-frame:" + str(frame) + ":FRAME_BAD\n" + caa + "\n")
 						
 				aa_contigf.close()
 				contig_parser.close()
@@ -1357,10 +1360,17 @@ class PipelineThread(QtCore.QThread):
 								# break
 						contig_parser = FAParser(query)
 						contig_parser.open()
+						# for id , desc ,seq in contig_parser.parse():
+							# for frame in [0,1,2]:
+								# caa = translate(seq[frame:])
+								# aa_contigf.write(">"+id + "-frame:" + str(frame) + "\n" + caa + "\n")
 						for id , desc ,seq in contig_parser.parse():
 							for frame in [0,1,2]:
 								caa = translate(seq[frame:])
-								aa_contigf.write(">"+id + "-frame:" + str(frame) + "\n" + caa + "\n")
+								if len(seq[frame:]) % 3 == 0 :
+									aa_contigf.write(">" + id + "-frame:" + str(frame) + ":FRAME_OK\n" + caa + "\n")
+								else:
+									aa_contigf.write(">" + id + "-frame:" + str(frame) + ":FRAME_BAD\n" + caa + "\n")
 								
 						aa_contigf.close()
 						contig_parser.close()
