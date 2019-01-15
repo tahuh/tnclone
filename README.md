@@ -42,7 +42,7 @@ Or download this repository directly by clicking download button above and unzip
 
 Due to technical issue of Github page when uploading large data please visit the link below to download Windows version
 
-Link : https://drive.google.com/drive/folders/0B8YOM4cMgTXSX0Nmc0RtcGQ2RGs?usp=sharing
+Link : https://drive.google.com/drive/u/4/folders/10x1B7rVWPt0rPMyT2ZIMdAXSn-2VuhVu
 
 Download all files and folders uploaded in the link above
 
@@ -262,4 +262,4 @@ We also thanks to Junho Jung's lab for kind donation of their scFv samples.
 
 ## Contact
 For any other issue while using TnClone, first open issue of TnClone. 
-If issue is not helpful please contact via team.tnclone@gmail.com
+If issue is not helpful please contact via team.tnclone2@gmail.com
