@@ -251,7 +251,9 @@ Hope this helps!!!!
 * Byungjin Hwang  - *Contributor* -
 
 ## License
-GPL v3
+TnClone - GPL v3
+GATK - BSD 3-clause "New" or "Revised" license
+Picard - MIT
 
 ## Acknowledgements
 We thanks to Bang's lab for kind donation of their samples for testing TnClone.
