@@ -48,6 +48,11 @@ Download all files and folders uploaded in the link above
 
 ### How to use
 
+#### Test data
+For assembly based method, use data under directory "test_data". 
+
+For reference mapping module use data under "reference_mapping" directory
+
 #### Linux users
 
 After downloading TnClone please navigate to your directory where TnClone installed.
