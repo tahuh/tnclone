@@ -58,7 +58,7 @@ TnClone offers two different strategy for analysis currently one is de novo asse
 
 See the image attatched below
 
-[[/image/fig2.png]]
+[[https://github.com/tahuh/tnclone/tree/master/image/fig2.png]]
 
 As shown in above image, for de novo assembly, user must check the assembly box in additional option panel.
 
