@@ -1,6 +1,8 @@
 # TnClone
 TnClone: High-throughput clonal analysis using Tn5-mediated library construction and _de novo_ assembly
 
+TnClone now supports reference mapping based analysis
+
 ## NOTE
 TnClone's manuscript is under preparation. Please do not copy/modify this code before publication.
 ## Before getting started
