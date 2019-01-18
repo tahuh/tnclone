@@ -53,6 +53,14 @@ For assembly based method, use data under directory "test_data".
 
 For reference mapping module use data under "reference_mapping" directory
 
+#### TnClone's different strategy for analysis
+TnClone offers two different strategy for analysis currently one is de novo assembly based method and the other is reference mapping.
+
+See the image attatched below
+
+[/image/fig2.png]
+
+
 #### Linux users
 
 After downloading TnClone please navigate to your directory where TnClone installed.
