@@ -1537,11 +1537,12 @@ class PipelineThread(QtCore.QThread):
 					
 					node_data = load_node(node_name)
 					self.ccv_pair[sample]["ccv_set"] = self._compute_stat(target_query , node_data, snv_loc, cnt, ksize)
-				
+		
 		#print ("[TnClone::Statistics]" ,"Done computing Contig Coefficient of Variation(CCV) scores...")
 	def _get_confident_seqs(self):
 		prefix = self.prefix
 		#self.message.append("[TnClone::ContigSelector] Selecting Confident contigs using CCV value computed...")
+		#print "[TnClone::ContigSelector] Get confident sequences"
 		outpath = abspath(self.options["out_path"])
 		assem_fname = abspath(outpath + os.sep + "assembly.config")
 		with open(assem_fname) as conf_file:
@@ -1592,18 +1593,41 @@ class PipelineThread(QtCore.QThread):
 					#selected = sorted_map[:2]
 					#id_set = map(lambda x : x[0] , selected)
 					selected = {}
-					for id , value in sorted_map:
-						### value is ccv
-						if value <= 1.7:
-							### Confident ones
-							selected[id] = value
-					id_set = map(lambda x : x[0] , selected)		
-					for id , desc , seq in query_parser.parse():
-						if not id in id_set : continue
-						
-						ccv = ccv_ratio_map[id]
-						new_id = id + "|ccv=" + str(ccv)
-						final_file.write(">"+new_id + "\n" + seq + "\n")
+					for i in range(len(sorted_map)-1):
+						ccv1 = sorted_map[i][1]
+						ccv2 = sorted_map[i+1][1]
+						factor = ccv2 / ccv1
+						if factor <= 1.7:
+							selected[sorted_map[i][0]] = ccv1
+					# for id , value in sorted_map:
+						# ### value is ccv
+						# if value <= 1.7:
+							# ### Confident ones
+							# selected[id] = value
+					id_set = list(selected.keys())
+					if len(id_set) > 2:
+						# Select first two
+						xtmp = {}
+						for id , desc , seq in query_parser.parse():
+							xtmp[id] = seq
+						first = sorted_map[0]
+						second = sorted_map[1]
+						first_id = first[0]
+						first_ccv = first[1]
+						first_seq = xtmp[first_id]
+						second_id = second[0]
+						second_ccv = second[1]
+						second_seq = xtmp[second_id]
+						first_new_id = first_id + "|ccv=" + str(first_ccv)
+						second_new_id = second_id + "|ccv=" + str(second_ccv)
+						final_file.write(">"+first_new_id + "\n" + first_seq + "\n")
+						final_file.write(">"+second_new_id + "\n" + second_seq + "\n")
+					else:
+						for id , desc , seq in query_parser.parse():
+							if not id in id_set : continue
+							ccv = ccv_ratio_map[id]
+							new_id = id + "|ccv=" + str(ccv)
+							final_file.write(">"+new_id + "\n" + seq + "\n")
 					# with open(indel_query) as F:
 						# for line in F:
 							# final_file.write(line)
@@ -1842,10 +1866,10 @@ team.tnclone(at)gmail.com
 		for id ,desc , seq in parser.parse():
 			ratio_list = []
 			for p in var_pos:
-				if p < ksize:
+				# print "_compute_stat var_pos p" , p
+				if p > ksize:
 					kmer_before = seq[p-ksize:p]
 					next_alleles = node_data[kmer_before]["edge"]
-
 					other_kmers = map(lambda x : kmer_before[1:] + x , next_alleles)
 
 					my_kmer = kmer_before[1:] + seq[p]
@@ -1854,7 +1878,7 @@ team.tnclone(at)gmail.com
 
 					other_depths = map(lambda x : node_data[x]["dp"] , other_kmers)
 
-					norm_ratio = my_depths / float(sum(other_depths))
+					norm_ratio = my_depth / float(sum(other_depths))
 					ratio_list.append(norm_ratio)
 			
 			if len(ratio_list) == 0:
