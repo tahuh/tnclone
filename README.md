@@ -51,7 +51,7 @@ Download all files and folders uploaded in the link above
 ### How to use
 
 #### Test data
-For assembly based method, use data under directory "test_data". 
+For assembly based method, use data under directory "denovo_assembly_data". 
 
 For reference mapping module use data under "reference_mapping" directory
 
