@@ -15,4 +15,6 @@ Create a directory to store reference sequence called "ref"
 
 Put all reference sequence related files (.fa , .fa.dict, .fa.xxx) in this directory
 
+Use "region.bed" to create assembly target for TnClone to assemble (used in additional option tab. see manual).
+
 Then execute with de novo assembly engine workflow as decribed in manual.
