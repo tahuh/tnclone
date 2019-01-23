@@ -20,4 +20,4 @@ Put all reference sequence related files (.fa , .fa.dict, .fa.xxx) in this direc
 
 Then execute with reference mapping engine workflow as decribed in manual.
 
-The resulting VCF files are also uploaded in this repository in VCF file extension
+The resulting VCF files are also uploaded in this repository with .vcf file extension
