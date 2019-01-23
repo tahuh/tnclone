@@ -19,3 +19,5 @@ Create a directory to store reference sequence called "ref"
 Put all reference sequence related files (.fa , .fa.dict, .fa.xxx) in this directory
 
 Then execute with reference mapping engine workflow as decribed in manual.
+
+The resulting VCF files are also uploaded in this repository in VCF file extension
