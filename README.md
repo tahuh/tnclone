@@ -89,7 +89,7 @@ User <b>MUST</b> execute above command where TnClone is installed!!!
 
 For users who have experience using command line based analysis, we have tnclone-cmd.py under same directory where tnclone.py located
 
-Below described options for TnClone's command line version
+Below described options for TnClone's command line version - This will be deprecated soon. Use GUI version instead
 
 ```
 Usage: tnclone-cmd.py [options]
