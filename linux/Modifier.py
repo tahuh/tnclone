@@ -8,7 +8,7 @@ Author : sunghoon heo
 import numpy as np
 
 class Modifier2(object):
-	def __init__(self, graph, node_depth, edge_freq=0.05):
+	def __init__(self, graph, node_depth, edge_freq=0.01):
 		self.graph = graph
 		self.node_depth = node_depth
 		self.allele_freq = edge_freq

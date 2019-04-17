@@ -43,7 +43,7 @@ class Assembler(object) :
 		dumper.close()
 
 	def modifyGraph(self, tmpfile) :
-		modifier = Modifier(self.graph.bdg, self.occ, 0.05)
+		modifier = Modifier(self.graph.bdg, self.occ, 0.00)
 		try:
 			modifier.enforce_modify()
 		except ValueError:

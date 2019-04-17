@@ -2,12 +2,18 @@
 
 import sys
 import time
+sys.stdout.write("sys module import\n")
 from PyQt4 import QtGui, QtCore
+sys.stdout.write("Qt -1\n")
 from PyQt4.QtCore import SIGNAL
+sys.stdout.write("Qy -2\n")
 from PyQt4.Qt import *
+sys.stdout.write('Qt -3\n')
 from Queue import Queue
+sys.stdout.write('Queue\n')
 import window
-
+sys.stdout.write('wndow\n')
+#print "loaded custom wnidows"
 
 import os
 import commands

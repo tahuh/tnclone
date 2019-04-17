@@ -28,8 +28,7 @@ from ErrorSeedCorrector import ErrorSeedCorrector
 from Sampler import Sampler
 from ReportError import ErrorReporter
 from AlignmentChecker import SamReader , IndelMarker
-from ReferenceMappingModule import RawReadMappingEngine, GATKRunningEngine
-### See line 1872-1907 for reference mapping module
+
 CWD=os.getcwd()
 """
 try:
@@ -130,10 +129,10 @@ class DiagnosisThreadAnalyse(QtCore.QThread):
 	def __del__(self):
 		self.wait()		
 	def run(self):
-		diagnosis_path = self.root_path + os.sep + "diagnosis"
-		sam_diagnosis = diagnosis_path + os.sep + "sam"
-		bam_diagnosis = diagnosis_path + os.sep + "bam"
-		pileup_diagnosis = diagnosis_path + os.sep + "pileup"
+		diagnosis_path = self.root_path + "/diagnosis"
+		sam_diagnosis = diagnosis_path + "/sam"
+		bam_diagnosis = diagnosis_path + "/bam"
+		pileup_diagnosis = diagnosis_path + "/pileup"
 		if not os.path.isdir(diagnosis_path):
 			self.message.append(self.log_prefix + "Diagnosis folder do not exist. Create.")
 			os.mkdir(diagnosis_path)
@@ -163,7 +162,7 @@ class DiagnosisThreadAnalyse(QtCore.QThread):
 				data = line.rstrip().split("\t")
 				gene = data[0]
 				numbers = int(data[1])
-				REF = self.ref_path + os.sep + gene + ".gene.fa"
+				REF = self.ref_path + "/" + gene + ".gene.fa"
 				bwa_index = "./bwa index %s"%(REF)
 				self.message.append(self.log_prefix + bwa_index)
 				call_script(bwa_index)
@@ -171,17 +170,17 @@ class DiagnosisThreadAnalyse(QtCore.QThread):
 				for i in xrange(1,numbers + 1):
 					### check for file existance
 					### Check if down streamed
-					if os.path.isfile(self.trim_path + os.sep + gene + os.sep +gene + "_" + str(i) + "_R1.trimmed.fastq.dwn.fastq"):
-						fwd_fastq = self.trim_path + os.sep + gene + os.sep +gene + "_" + str(i) + "_R1.trimmed.fastq.dwn.fastq"
-						rev_fastq = self.trim_path + os.sep + gene + os.sep +gene + "_" + str(i) + "_R2.trimmed.fastq.dwn.fastq"
+					if os.path.isfile(self.trim_path + "/" + gene + "/" +gene + "_" + str(i) + "_R1.trimmed.fastq.dwn.fastq"):
+						fwd_fastq = self.trim_path + "/" + gene + "/" +gene + "_" + str(i) + "_R1.trimmed.fastq.dwn.fastq"
+						rev_fastq = self.trim_path + "/" + gene + "/" +gene + "_" + str(i) + "_R2.trimmed.fastq.dwn.fastq"
 					else:
-						fwd_fastq = self.trim_path + os.sep + gene + os.sep + gene + "_" + str(i) + "_R1.trimmed.fastq"			
-						rev_fastq = self.trim_path + os.sep + gene + os.sep + gene + "_" + str(i) + "_R2.trimmed.fastq"
-					bwa_sam = sam_diagnosis + os.sep + gene + "_" + str(i) + ".bwa.sam"
+						fwd_fastq = self.trim_path + "/" + gene + "/" + gene + "_" + str(i) + "_R1.trimmed.fastq"			
+						rev_fastq = self.trim_path + "/" + gene + "/" + gene + "_" + str(i) + "_R2.trimmed.fastq"
+					bwa_sam = sam_diagnosis + "/" + gene + "_" + str(i) + ".bwa.sam"
 					bwa_mem = "./bwa mem -M -R '@RG\tID:%s\tSM:%s\tLB:%s\tPL:ILLUMINA\tPU:%s' %s %s %s > %s"%(gene,gene,gene,gene,REF,fwd_fastq,rev_fastq,bwa_sam)
 					self.message.append(self.log_prefix + bwa_mem)
 					call_script(bwa_mem)
-					bam1 = bam_diagnosis + os.sep + gene + "_" + str(i) + ".bam"
+					bam1 = bam_diagnosis + "/" + gene + "_" + str(i) + ".bam"
 					samtools_view = "./samtools view -b -T %s -S %s -o %s"%(REF,bwa_sam,bam1)
 					self.message.append(self.log_prefix + samtools_view)
 					call_script(samtools_view)
@@ -192,7 +191,7 @@ class DiagnosisThreadAnalyse(QtCore.QThread):
 					#samtools_index = "./samtools index %s %s"%(bam2+ ".bam", bam2 + ".bam.bam")
 					#self.message.append(self.log_prefix + samtools_index)
 					#call_script(samtools_index)
-					pileup_file = pileup_diagnosis + os.sep + gene + "_" + str(i) + ".pileup"
+					pileup_file = pileup_diagnosis + "/" + gene + "_" + str(i) + ".pileup"
 					samtools_pileup = "./samtools mpileup -x -q 1 -Q 1 -d 1000000 -s -f %s %s > %s"%(REF, bam2+".bam",pileup_file)
 					self.message.append(self.log_prefix + samtools_pileup)
 					call_script(samtools_pileup)
@@ -236,7 +235,7 @@ class PipelineThread(QtCore.QThread):
 		# self.prefix += "-"
 		# self.prefix += time.strftime("%d-%m-%Y")
 		self.message = editor
-		self.trouble_shoot_file = open(self.options["out_path"] + os.sep + "troubleshoot.log" , "w")
+		self.trouble_shoot_file = open(self.options["out_path"] + "/troubleshoot.log" , "w")
 		self.single_mode=False
 		# XStream.stdout().messageWritten.connect(self.message.append)
 		#self.log_ = QtCore.pyqtSignal(str)
@@ -261,7 +260,7 @@ class PipelineThread(QtCore.QThread):
 		#self.message.setTextCursor(c)
 	def _run_sorter(self):
 		outpath = abspath(self.options["out_path"])
-		sort_path = outpath + os.sep + "sorted"
+		sort_path = outpath + "/sorted"
 		logger = []
 		#XStream.stdout().messageWritten.connect(self.message.append)
 		if not os.path.isdir(sort_path) :
@@ -290,8 +289,8 @@ class PipelineThread(QtCore.QThread):
 
 	def _run_trimmer(self):
 		outpath = abspath(self.options["out_path"])
-		sort_path = outpath + os.sep + "sorted"
-		trim_path = outpath + os.sep + "trimmed"
+		sort_path = outpath + "/sorted"
+		trim_path = outpath + "/trimmed"
 		#XStream.stdout().messageWritten.connect(self.message.append)
 		if not os.path.isdir(trim_path):
 			#self.message.append("[LOGGER] Trimming file path does not exist. Creating....")
@@ -314,7 +313,7 @@ class PipelineThread(QtCore.QThread):
 		logger = []
 
 		outpath = self.options["out_path"]
-		assem_conf_name = outpath + os.sep + "assembly.config"
+		assem_conf_name = outpath + "/assembly.config"
 		
 		# if os.path.exists(assem_conf_name) : 
 			# self.message.append("[LOGGER] Configuration file already exists. Program will not create.\n")
@@ -337,7 +336,7 @@ class PipelineThread(QtCore.QThread):
 				ksize = int(self.options["ksize"])
 				cov = int(self.options["mink_occ"])
 				##print gene , nsamples, bed_path, ref_path, ksize, cov
-				script = "python buildConfigFile.py -k %d -b %s -c %d -n %d -r %s -o %s"%(ksize, bed_path, cov, nsamples, ref_path + os.sep + gene + ".gene.fa", assem_conf_name)
+				script = "python buildConfigFile.py -k %d -b %s -c %d -n %d -r %s -o %s"%(ksize, bed_path, cov, nsamples, ref_path + "/" + gene + ".gene.fa", assem_conf_name)
 				#self.message.append("[LOGGER] " + script)
 				#print ("[TnClone::ConfigGenerator]" , script)
 				#logging.info("[LOGGER] " + script)
@@ -391,7 +390,7 @@ class PipelineThread(QtCore.QThread):
 		KSIZE = self.options["ksize"]
 		ksize = KSIZE
 
-		assem_conf_name = abspath(self.options["out_path"]) + os.sep + "assembly.config"
+		assem_conf_name = abspath(self.options["out_path"]) + "/assembly.config"
 
 		log = []
 		T1 = time.time()
@@ -419,9 +418,9 @@ class PipelineThread(QtCore.QThread):
 
 				
 
-				fq_path = outpath + os.sep + "trimmed"
-				fwd_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq"
-				rev_fqname = fq_path + os.sep + gene + os.sep + sample + "_R2.trimmed.fastq"
+				fq_path = outpath + "/trimmed"
+				fwd_fqname = fq_path + "/" + gene + "/" + sample + "_R1.trimmed.fastq"
+				rev_fqname = fq_path + "/" + gene + "/" + sample + "_R2.trimmed.fastq"
 
 				fwd_size = os.stat(fwd_fqname).st_size
 				rev_size = os.stat(rev_fqname).st_size
@@ -446,20 +445,20 @@ class PipelineThread(QtCore.QThread):
 						#logging.info("[LOGGER] Eventhough down-sample is set, file size is smaller than 30 Mb. \nThis will not affect program performance thus there is no down sample process\n")
 						sampling = False
 				if sampling:
-					fwd_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq.dwn.fastq"
-					rev_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq.dwn.fastq"
+					fwd_fqname = fq_path + "/" + gene + "/" + sample + "_R1.trimmed.fastq.dwn.fastq"
+					rev_fqname = fq_path + "/" + gene + "/" + sample + "_R1.trimmed.fastq.dwn.fastq"
 
 				#self.message.append("[LOGGER] Building KFS table....\n")
 				#logging.info("[LOGGER] Building KFS table....\n")
 
-				kfs_path = outpath + os.sep + "kfs"
+				kfs_path = outpath + "/kfs"
 				if not os.path.isdir(kfs_path):
 					#self.message.append("[LOGGER] KFS does not exist. Create.")
 					#print ("[TnClone::AssemblyMachinery]" , "KFS does not exist. Create.")
 					#logging.info("[LOGGER] KFS does not exist. Create.")
 					os.mkdir(kfs_path)
 
-				kfs_oname = kfs_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".kfs"
+				kfs_oname = kfs_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".kfs"
 
 				kfs = KFS(kfs_oname, ksize=ksize)
 
@@ -482,19 +481,19 @@ class PipelineThread(QtCore.QThread):
 
 				#self.message.append("[LOGGER] Build Graph using Illumina sequencing reads")
 				#print ("[TnClone::AssemblyMachinery]" , "Build Graph using Illumina sequencing reads")
-				tmp_path = outpath + os.sep + "tmp"
+				tmp_path = outpath + "/tmp"
 
 				if not os.path.isdir(tmp_path):
 					#self.message.append("[LOGGER] temporal directory not exist. Create")
 					#print ("[TnClone::AssemblyMachinery]" , "Temporal directory not exist. Create")
 					os.mkdir(tmp_path)
 
-				assem_path = outpath + os.sep + "assem"
+				assem_path = outpath + "/assem"
 				if not os.path.isdir(assem_path):
 					#self.message.append("[LOGGER] No assembly result directory. Create...")
 					#print ("[TnClone::AssemblyMachinery]" , "No assembly result directory. Create...")
 					os.mkdir(assem_path)
-				cfastq_path = outpath + os.sep + "cfastq"
+				cfastq_path = outpath + "/cfastq"
 
 				if not os.path.isdir(cfastq_path):
 					#self.message.append("[LOGGER] No CFASTQ directory. Create")
@@ -502,9 +501,9 @@ class PipelineThread(QtCore.QThread):
 
 					os.mkdir(cfastq_path)
 
-				node_tmp = tmp_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".nodes"
+				node_tmp = tmp_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".nodes"
 
-				assem_outname = assem_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
+				assem_outname = assem_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
 				mink_occ = int(self.options["mink_occ"])
 				assembler = Assembler(kfs_oname, src, snk,  assem_outname, ksize, fwd_fqname, rev_fqname, node_tmp, mink_occ)
 
@@ -530,13 +529,13 @@ class PipelineThread(QtCore.QThread):
 					assem_out = open(assem_outname , "w")
 					assem_out.write(">DISSAPEAR\nDISAPPEARED\n")
 					assem_out.close()
-					ss_find_file = open(outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv" , "w")
+					ss_find_file = open(outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv" , "w")
 					ss_find_file.close()
-					dup_rmv_file = open(outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target" , "w")
+					dup_rmv_file = open(outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target" , "w")
 					dup_rmv_file.close()
 
-					indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-					good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+					indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+					good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 					indel_f = open(indel_tmp_name , "w")
 					good_f = open(good_tmp_name , "w")
 
@@ -576,11 +575,11 @@ class PipelineThread(QtCore.QThread):
 
 				### PASTE HERE
 				if assembly_seed_error:
-					if os.stat(outpath + os.sep + "seed.fa").st_size == 0 :
+					if os.stat(outpath + "/seed.fa").st_size == 0 :
 						assem_out.write("NO SEED\n")
 						assem_out.close()
 						continue
-					seed_file = open(outpath + os.sep + "seed.fa")
+					seed_file = open(outpath + "/seed.fa")
 					chk = False
 					for line in seed_file:
 						src = line.rstrip()
@@ -597,11 +596,11 @@ class PipelineThread(QtCore.QThread):
 				#self.message.append("Finished assembly task for sample : %s"%(sample))
 				
 				### SEMI PROCESS
-				ss_find_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv"
+				ss_find_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv"
 				ssf = SSF(assem_outname , ss_find_file, src, snk,self.message)
 				ssf.run()
 
-				dup_rmv_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
+				dup_rmv_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
 				drt = DRT(ss_find_file , dup_rmv_file,self.message)
 				drt.run()
 
@@ -616,12 +615,12 @@ class PipelineThread(QtCore.QThread):
 					x = int(self.options["mismatch_score"])
 					g = int(self.options["gap_open"])
 					e = int(self.options["gap_extension"])
-					refname = refpath + os.sep + sample.split("_")[0] + ".gene.fa"
+					refname = refpath + "/" + sample.split("_")[0] + ".gene.fa"
 					query = dup_rmv_file
-					if not os.path.isdir(abspath(self.options["out_path"]) + os.sep + "pre-aln"):
-						os.mkdir(abspath(self.options["out_path"]) + os.sep + "pre-aln")
+					if not os.path.isdir(abspath(self.options["out_path"]) + "/pre-aln"):
+						os.mkdir(abspath(self.options["out_path"]) + "/pre-aln")
 					self.message.append("[TnClone::Pre-Alignment] Start...")
-					samname = abspath(self.options["out_path"]) + os.sep + "pre-aln" + os.sep  + sample + "_pre-aln.dna.sam"
+					samname = abspath(self.options["out_path"]) + "/pre-aln/" + sample + "_pre-aln.dna.sam"
 					internal_align_script = "./SSW-CPP -m %d -x %d -g %d -e %d %s %s > %s"%(m,x,g,e,refname,query,samname)
 					
 					#self.message.append("[TnClone::Pre-Alignment] " + internal_align_script)
@@ -647,8 +646,8 @@ class PipelineThread(QtCore.QThread):
 					cached = marker.cache
 					ids = cached.id()
 					seqs = cached.seq()
-					indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-					good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+					indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+					good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 					indel_f = open(indel_tmp_name , "w")
 					good_f = open(good_tmp_name , "w")
 					
@@ -664,8 +663,8 @@ class PipelineThread(QtCore.QThread):
 					#self.message.append("[TnClone::AssemblyMachinery] Done flushing...")
 				else:
 					### NO TASK ( MAFFT is too slow )
-					indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-					good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+					indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+					good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 					indel_f = open(indel_tmp_name , "w")
 					good_f = open(good_tmp_name , "w")
 					indel_f.close()
@@ -742,7 +741,7 @@ class PipelineThread(QtCore.QThread):
 
 		log = []
 
-		sam_path = outpath + os.sep + "sam"
+		sam_path = outpath + "/sam"
 		prefix = self.prefix
 		if not os.path.isdir(sam_path) :
 			#elf.message.append("[LOGGER] SAM folder do not exist. Create.")
@@ -750,7 +749,7 @@ class PipelineThread(QtCore.QThread):
 			#logging.info("[LOGGER] SAM folder do not exist. Create.")
 			os.mkdir(sam_path)
 		outpath = abspath(self.options["out_path"])
-		vcf_path = outpath + os.sep + "vcf"
+		vcf_path = outpath + "/vcf"
 		#log = []
 		prefix = self.prefix
 		if not os.path.isdir(vcf_path):
@@ -759,7 +758,7 @@ class PipelineThread(QtCore.QThread):
 			#logging.info("[LOGGER] No VCF dir. Create.")
 			os.mkdir(vcf_path)
 
-		assem_fname = abspath(outpath + os.sep + "assembly.config")
+		assem_fname = abspath(outpath + "/assembly.config")
 		no_seed_samples = []
 		broken_samples = []
 		
@@ -778,9 +777,9 @@ class PipelineThread(QtCore.QThread):
 					self.sample_counts_info[gene] = 1
 				else:
 					self.sample_counts_info[gene] += 1
-				refname = refpath + os.sep + sample.split("_")[0] + ".gene.fa"
+				refname = refpath + "/" + sample.split("_")[0] + ".gene.fa"
 
-				align_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+				align_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 
 				### MUST EDIT FROM HERE
 				### Check if file size = 0
@@ -788,7 +787,7 @@ class PipelineThread(QtCore.QThread):
 				fsize = os.stat(align_query).st_size
 				if fsize == 0:
 					### Figure out if the origin was no seed
-					origin_file_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
+					origin_file_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
 					origin_file = open(origin_file_name)
 					header = origin_file.readline()
 					if header.startswith("NO SEED"):
@@ -801,20 +800,20 @@ class PipelineThread(QtCore.QThread):
 						self.broken_samples.append(sample)
 						#continue
 
-				fsize2 = os.stat(outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel").st_size
+				fsize2 = os.stat(outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel").st_size
 				if fsize2 == 0 :
-					tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+					tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 					tmp_merged = open(tmp_name , "w")
 					tmp_merged.close()
 
 				#self.message.append("[TnClone::Analysis] Merging indel and good files...\n")
 				#print ("[TnClone::Analysis]" , "Merging indel and good files...")
-				tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+				tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 				tmp_merged = open(tmp_name , "w")
 				with open(align_query) as F:
 					for line in F :
 						tmp_merged.write(line)
-				align_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+				align_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
 				with open(align_query) as F:
 					for line in F:
 						tmp_merged.write(line)
@@ -823,7 +822,7 @@ class PipelineThread(QtCore.QThread):
 
 				### Perform alignment for query
 
-				samname = sam_path + os.sep + sample + "_k" + str(ksize) + ".dna.sam"
+				samname = sam_path + "/" + sample + "_k" + str(ksize) + ".dna.sam"
 
 				script = "./SSW-CPP -m %d -x %d -g %d -e %d %s %s > %s"%(m,x,g,e,refname,query,samname)
 
@@ -833,14 +832,14 @@ class PipelineThread(QtCore.QThread):
 				
 				### enforce sleep for 0.5 sec to memory alignment
 				QtCore.QThread.msleep(500)
-				vcfname = vcf_path + os.sep + sample + "_k" + str(ksize) + ".dna.vcf"
+				vcfname = vcf_path + "/" + sample + "_k" + str(ksize) + ".dna.vcf"
 				script2 = "python variant_caller.py --sam %s --ref %s --vcf %s"%(samname, refname, vcfname)
 				#self.message.append("[TnClone::VariantCaller] " + script2 + "\n")
 				#print ("[TnClone::VariantCaller]", script2)
 				
 				launch(script2)
-				aa_contigname = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa.aa.fa"
-				aa_refname = refpath + os.sep + prefix + "_" + sample.split("_")[0] + ".gene.fa.aa.fa"
+				aa_contigname = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa.aa.fa"
+				aa_refname = refpath + "/" + prefix + "_" + sample.split("_")[0] + ".gene.fa.aa.fa"
 
 				aa_contigf = open(aa_contigname , "w")
 				aa_reff = open(aa_refname , "w")
@@ -878,14 +877,14 @@ class PipelineThread(QtCore.QThread):
 				aa_contigf.close()
 				contig_parser.close()
 
-				acid_samname = sam_path + os.sep + sample + "_k" + str(ksize) + ".protein.sam"
+				acid_samname = sam_path + "/" + sample + "_k" + str(ksize) + ".protein.sam"
 				script3 = "./SSW-C -m %d -x %d -o %d -e %d -p -a ./blosum62.txt -c -s -h %s %s > %s"%(m,x,g,e,aa_refname , aa_contigname, acid_samname)
 				#self.message.append("[TnClone::Alignment] " + script3 + "\n")
 				#print ("[TnClone::Alignment]" , script3)
 				### enforce sleep for 0.5 sec to memory alignment
 				QtCore.QThread.msleep(500)
 				launch(script3)
-				aa_vcfname = vcf_path + os.sep + sample + "_k" + str(ksize) + ".protein.vcf"
+				aa_vcfname = vcf_path + "/" + sample + "_k" + str(ksize) + ".protein.vcf"
 				script4 = "python variant_caller.py --sam %s --ref %s --vcf %s"%(acid_samname, aa_refname, aa_vcfname)
 				#self.message.append("[TnClone::VariantCaller] " + script4 + "\n")
 				#print ("[TnClone::VariantCaller]" , script4)
@@ -906,7 +905,7 @@ class PipelineThread(QtCore.QThread):
 
 		log = []
 
-		sam_path = outpath + os.sep + "sam"
+		sam_path = outpath + "/sam"
 		prefix = self.prefix
 		if not os.path.isdir(sam_path) :
 			#elf.message.append("[LOGGER] SAM folder do not exist. Create.")
@@ -914,7 +913,7 @@ class PipelineThread(QtCore.QThread):
 			#logging.info("[LOGGER] SAM folder do not exist. Create.")
 			os.mkdir(sam_path)
 		outpath = abspath(self.options["out_path"])
-		vcf_path = outpath + os.sep + "vcf"
+		vcf_path = outpath + "/vcf"
 		#log = []
 		prefix = self.prefix
 		if not os.path.isdir(vcf_path):
@@ -923,7 +922,7 @@ class PipelineThread(QtCore.QThread):
 			#logging.info("[LOGGER] No VCF dir. Create.")
 			os.mkdir(vcf_path)
 
-		assem_fname = abspath(outpath + os.sep + "assembly.config")
+		assem_fname = abspath(outpath + "/assembly.config")
 		no_seed_samples = []
 		broken_samples = []
 		
@@ -942,7 +941,7 @@ class PipelineThread(QtCore.QThread):
 		KSIZE = self.options["ksize"]
 		ksize = KSIZE
 
-		assem_conf_name = abspath(self.options["out_path"]) + os.sep + "assembly.config"
+		assem_conf_name = abspath(self.options["out_path"]) + "/assembly.config"
 
 		log = []
 		T1 = time.time()
@@ -970,9 +969,9 @@ class PipelineThread(QtCore.QThread):
 
 				
 
-				fq_path = outpath + os.sep + "trimmed"
-				fwd_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq"
-				rev_fqname = fq_path + os.sep + gene + os.sep + sample + "_R2.trimmed.fastq"
+				fq_path = outpath + "/trimmed"
+				fwd_fqname = fq_path + "/" + gene + "/" + sample + "_R1.trimmed.fastq"
+				rev_fqname = fq_path + "/" + gene + "/" + sample + "_R2.trimmed.fastq"
 
 				fwd_size = os.stat(fwd_fqname).st_size
 				rev_size = os.stat(rev_fqname).st_size
@@ -998,21 +997,21 @@ class PipelineThread(QtCore.QThread):
 						#logging.info("[LOGGER] Eventhough down-sample is set, file size is smaller than 30 Mb. \nThis will not affect program performance thus there is no down sample process\n")
 						sampling = False
 				if sampling:
-					fwd_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq.dwn.fastq"
-					rev_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq.dwn.fastq"
+					fwd_fqname = fq_path + "/" + gene + "/" + sample + "_R1.trimmed.fastq.dwn.fastq"
+					rev_fqname = fq_path + "/" + gene + "/" + sample + "_R1.trimmed.fastq.dwn.fastq"
 
 				#self.message.append("[LOGGER] Building KFS table....\n")
 				#print ("[TnClone::AssemblyMachinery]" , "Building KFS table....")
 				#logging.info("[LOGGER] Building KFS table....\n")
 
-				kfs_path = outpath + os.sep + "kfs"
+				kfs_path = outpath + "/kfs"
 				if not os.path.isdir(kfs_path):
 					#self.message.append("[LOGGER] KFS does not exist. Create.")
 					#print ("[TnClone::AssemblyMachinery]" , "KFS does not exist. Create.")
 					#logging.info("[LOGGER] KFS does not exist. Create.")
 					os.mkdir(kfs_path)
 
-				kfs_oname = kfs_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".kfs"
+				kfs_oname = kfs_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".kfs"
 
 				kfs = KFS(kfs_oname, ksize=ksize)	
 
@@ -1035,28 +1034,28 @@ class PipelineThread(QtCore.QThread):
 
 				#print ("[TnClone::AssemblyMachinery]", "Build Graph using Illumina sequencing reads")
 
-				tmp_path = outpath + os.sep + "tmp"
+				tmp_path = outpath + "/tmp"
 
 				if not os.path.isdir(tmp_path):
 					#self.message.append("[LOGGER] temporal directory not exist. Create")
 
 					os.mkdir(tmp_path)
 
-				assem_path = outpath + os.sep + "assem"
+				assem_path = outpath + "/assem"
 				if not os.path.isdir(assem_path):
 					#self.message.append("[LOGGER] No assembly result directory. Create...")
 
 					os.mkdir(assem_path)
-				cfastq_path = outpath + os.sep + "cfastq"
+				cfastq_path = outpath + "/cfastq"
 
 				if not os.path.isdir(cfastq_path):
 					#self.message.append("[LOGGER] No CFASTQ directory. Create")
 
 					os.mkdir(cfastq_path)
 
-				node_tmp = tmp_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".nodes"
+				node_tmp = tmp_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".nodes"
 
-				assem_outname = assem_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
+				assem_outname = assem_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
 				mink_occ = int(self.options["mink_occ"])
 				assembler = Assembler(kfs_oname, src, snk,  assem_outname, ksize, fwd_fqname, rev_fqname, node_tmp, mink_occ)
 
@@ -1080,20 +1079,20 @@ class PipelineThread(QtCore.QThread):
 					assem_out = open(assem_outname , "w")
 					assem_out.write(">DISSAPEAR\nDISAPPEARED\n")
 					assem_out.close()
-					ss_find_file = open(outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv" , "w")
+					ss_find_file = open(outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv" , "w")
 					ss_find_file.close()
-					dup_rmv_file = open(outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target" , "w")
+					dup_rmv_file = open(outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target" , "w")
 					dup_rmv_file.close()
 
-					indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-					good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+					indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+					good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 					indel_f = open(indel_tmp_name , "w")
 					good_f = open(good_tmp_name , "w")
 
 					indel_f.close()
 					good_f.close()
 					
-					tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+					tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 					tmp_merged = open(tmp_name , "w")
 					tmp_merged.close()
 					
@@ -1131,30 +1130,30 @@ class PipelineThread(QtCore.QThread):
 
 				### PASTE HERE
 				if assembly_seed_error:
-					if os.stat(outpath + os.sep + "seed.fa").st_size == 0 :
+					if os.stat(outpath + "/seed.fa").st_size == 0 :
 						assem_out.write("NO SEED\n")
 						assem_out.close()
 						
-						ss_find_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv"
+						ss_find_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv"
 						ss = open(ss_find_file , "w")
 						ss.close()
 						
-						dup_rmv_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
+						dup_rmv_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
 						dup = open(dup_rmv_file , "w")
 						dup.close()
 						
-						indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-						good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+						indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+						good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 						indel_f = open(indel_tmp_name , "w")
 						good_f = open(good_tmp_name , "w")
 
 						indel_f.close()
 						good_f.close()
-						tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+						tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 						tmp_merged = open(tmp_name , "w")
 						tmp_merged.close()
 						continue
-					seed_file = open(outpath + os.sep + "seed.fa")
+					seed_file = open(outpath + "/seed.fa")
 					chk = False
 					for line in seed_file:
 						src = line.rstrip()
@@ -1171,11 +1170,11 @@ class PipelineThread(QtCore.QThread):
 				#self.message.append("Finished assembly task for sample : %s"%(sample))
 				
 				### SEMI PROCESS
-				ss_find_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv"
+				ss_find_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.ss.rmv"
 				ssf = SSF(assem_outname , ss_find_file, src, snk,self.message)
 				ssf.run()
 
-				dup_rmv_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
+				dup_rmv_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
 				drt = DRT(ss_find_file , dup_rmv_file,self.message)
 				drt.run()
 
@@ -1190,28 +1189,28 @@ class PipelineThread(QtCore.QThread):
 					x = int(self.options["mismatch_score"])
 					g = int(self.options["gap_open"])
 					e = int(self.options["gap_extension"])
-					refname = refpath + os.sep + sample.split("_")[0] + ".gene.fa"
+					refname = refpath + "/" + sample.split("_")[0] + ".gene.fa"
 					#query = ss_find_file
 					query = dup_rmv_file
 					if os.stat(query).st_size == 0 :
 						#print ("[TnClone::AssemblyMachinery]", "File size for " + dup_rmv_file + " is zero.")
 						#print ("[TnClone::AssemblyMachinery]", "No pre-alignment sprocess.")
 						#print ("[TnClone::AssemblyMachinery]", "Skip\n")
-						indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-						good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+						indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+						good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 						indel_f = open(indel_tmp_name , "w")
 						good_f = open(good_tmp_name , "w")
 
 						indel_f.close()
 						good_f.close()
-						tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+						tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 						tmp_merged = open(tmp_name , "w")
 						tmp_merged.close()
 						
-					if not os.path.isdir(abspath(self.options["out_path"]) + os.sep + "pre-aln"):
-						os.mkdir(abspath(self.options["out_path"]) + os.sep + "pre-aln")
+					if not os.path.isdir(abspath(self.options["out_path"]) + "/pre-aln"):
+						os.mkdir(abspath(self.options["out_path"]) + "/pre-aln")
 					#print ("[TnClone::Pre-Alignment]", "Start...")
-					samname = abspath(self.options["out_path"]) + os.sep + "pre-aln" + os.sep  + sample + "_pre-aln.dna.sam"
+					samname = abspath(self.options["out_path"]) + "/pre-aln/" + sample + "_pre-aln.dna.sam"
 					if os.stat(query).st_size != 0 :
 						
 						internal_align_script = "./SSW-CPP -m %d -x %d -g %d -e %d %s %s > %s"%(m,x,g,e,refname,query,samname)
@@ -1236,8 +1235,8 @@ class PipelineThread(QtCore.QThread):
 						cached = marker.cache
 						ids = cached.id()
 						seqs = cached.seq()
-						indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-						good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+						indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+						good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 						indel_f = open(indel_tmp_name , "w")
 						good_f = open(good_tmp_name , "w")
 						
@@ -1251,8 +1250,8 @@ class PipelineThread(QtCore.QThread):
 						good_f.close()
 						#self.message.append("[TnClone::AssemblyMachinery] Done flushing...")
 					else:
-						indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-						good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+						indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+						good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 						indel_f = open(indel_tmp_name , "w")
 						good_f = open(good_tmp_name , "w")
 						indel_f.close()
@@ -1267,9 +1266,9 @@ class PipelineThread(QtCore.QThread):
 						self.sample_counts_info[gene] = 1
 					else:
 						self.sample_counts_info[gene] += 1
-					refname = refpath + os.sep + sample.split("_")[0] + ".gene.fa"
+					refname = refpath + "/" + sample.split("_")[0] + ".gene.fa"
 
-					align_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+					align_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 
 					
 					### MUST EDIT FROM HERE
@@ -1278,7 +1277,7 @@ class PipelineThread(QtCore.QThread):
 					fsize = os.stat(align_query).st_size
 					if fsize == 0:
 						### Figure out if the origin was no seed
-						origin_file_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
+						origin_file_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig"
 						origin_file = open(origin_file_name)
 						header = origin_file.readline()
 						
@@ -1291,19 +1290,19 @@ class PipelineThread(QtCore.QThread):
 						elif header.startswith(">DISSAPEAR"):
 							self.broken_samples.append(sample)
 							#continue
-					fsize2 = os.stat(outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel").st_size
+					fsize2 = os.stat(outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel").st_size
 					if fsize2 == 0 :
-						tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+						tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 						tmp_merged = open(tmp_name , "w")
 						tmp_merged.close()
 					
 					#print ("[TnClone::Analysis]" , "Merging indel and good files...\n")
-					tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+					tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 					tmp_merged = open(tmp_name , "w")
 					with open(align_query) as F:
 						for line in F :
 							tmp_merged.write(line)
-					align_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+					align_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
 					with open(align_query) as F:
 						for line in F:
 							tmp_merged.write(line)
@@ -1312,7 +1311,7 @@ class PipelineThread(QtCore.QThread):
 					if os.stat(query).st_size != 0:
 						### Perform alignment for query
 
-						samname = sam_path + os.sep + sample + "_k" + str(ksize) + ".dna.sam"
+						samname = sam_path + "/" + sample + "_k" + str(ksize) + ".dna.sam"
 
 						script = "./SSW-CPP -m %d -x %d -g %d -e %d %s %s > %s"%(m,x,g,e,refname,query,samname)
 						# script = "./SSW-C -m %d -x %d -o %d -e %d -c -s -h %s %s > %s"%(m,x,g,e,refname,query,samname)
@@ -1321,13 +1320,13 @@ class PipelineThread(QtCore.QThread):
 						QtCore.QThread.msleep(5000)
 						#print ("[TnClone::Alignment]" , script+"\n")
 						launch(script)
-						vcfname = vcf_path + os.sep + sample + "_k" + str(ksize) + ".dna.vcf"
+						vcfname = vcf_path + "/" + sample + "_k" + str(ksize) + ".dna.vcf"
 						script2 = "python variant_caller.py --sam %s --ref %s --vcf %s"%(samname, refname, vcfname)
 						#print ("[TnClone::VariantCaller]" , script2 + "\n")
 						
 						launch(script2)
-						aa_contigname = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa.aa.fa"
-						aa_refname = refpath + os.sep + prefix + "_" + sample.split("_")[0] + ".gene.fa.aa.fa"
+						aa_contigname = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa.aa.fa"
+						aa_refname = refpath + "/" + prefix + "_" + sample.split("_")[0] + ".gene.fa.aa.fa"
 
 						aa_contigf = open(aa_contigname , "w")
 						aa_reff = open(aa_refname , "w")
@@ -1377,7 +1376,7 @@ class PipelineThread(QtCore.QThread):
 						aa_contigf.close()
 						contig_parser.close()
 
-						acid_samname = sam_path + os.sep + sample + "_k" + str(ksize) + ".protein.sam"
+						acid_samname = sam_path + "/" + sample + "_k" + str(ksize) + ".protein.sam"
 						script3 = "./SSW-C -m %d -x %d -o %d -e %d -p -a ./blosum62.txt -c -s -h %s %s > %s"%(m,x,g,e,aa_refname , aa_contigname, acid_samname)
 						
 						#self.message.append("[TnClone::Alignment] " + script3 + "\n")
@@ -1387,7 +1386,7 @@ class PipelineThread(QtCore.QThread):
 						### enforce sleep for 5 sec to memory alignment
 						#self.message.append("[TnClone::ToSystem] Wait for 5 sec to ensure memory to be aligned\n")
 						QtCore.QThread.msleep(5000)
-						aa_vcfname = vcf_path + os.sep + sample + "_k" + str(ksize) + ".protein.vcf"
+						aa_vcfname = vcf_path + "/" + sample + "_k" + str(ksize) + ".protein.vcf"
 						script4 = "python variant_caller.py --sam %s --ref %s --vcf %s"%(acid_samname, aa_refname, aa_vcfname)
 						#print ("[TnClone::VariantCaller]" , script4 + "\n")
 
@@ -1396,7 +1395,7 @@ class PipelineThread(QtCore.QThread):
 						continue ### No other task
 				else:
 					
-					dup_rmv_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
+					dup_rmv_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.aln.target"
 					cnt = 0
 					with open(dup_rmv_file) as tmp_file_process:
 						for line in tmp_file_process:
@@ -1406,28 +1405,28 @@ class PipelineThread(QtCore.QThread):
 					### Perform MAFFT
 					
 					cwd = os.getcwd()
-					MAFFT_PATH = cwd + os.sep + "mafft"
-					MAFFT_OUTPUT = outpath + os.sep + "sam" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) +".mafft"
+					MAFFT_PATH = cwd + "/mafft"
+					MAFFT_OUTPUT = outpath + "/sam/" + prefix + "_" + sample + "_k" + str(ksize) +".mafft"
 					
 					MAFFT_COMMAND = MAFFT_PATH + " " + dup_rmv_file  + " > " + MAFFT_OUTPUT
 					
 					launch(MAFFT_COMMAND)
 					
-					MSA2VCF_OUTPUT = outpath + os.sep + "vcf" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) +".dna.vcf"
+					MSA2VCF_OUTPUT = outpath + "/vcf/" + prefix + "_" + sample + "_k" + str(ksize) +".dna.vcf"
 					
-					MSA2VCF_COMMAND = "java -jar " + cwd + os.sep + "msa2vcf.jar" + " " + MAFFT_OUTPUT + " > " + MSA2VCF_OUTPUT
+					MSA2VCF_COMMAND = "java -jar " + cwd + "/msa2vcf.jar" + " " + MAFFT_OUTPUT + " > " + MSA2VCF_OUTPUT
 					
 					launch(MSA2VCF_COMMAND)
 					
-					tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+					tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 					tmp_merged = open(tmp_name , "w")
 					with open(dup_rmv_file) as dup_tmp:
 						for line in dup_tmp:
 							tmp_merged.write(line)
 					tmp_merged.close()
 					
-					indel_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-					good_tmp_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+					indel_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+					good_tmp_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
 					indel_f = open(indel_tmp_name , "w")
 					good_f = open(good_tmp_name , "w")
 					### We don't know real INDEL so we enforce all to analysis
@@ -1494,19 +1493,19 @@ class PipelineThread(QtCore.QThread):
 			return var_pos
 		refpath = abspath(self.options["ref_path"])
 		outpath = abspath(self.options["out_path"])
-		assem_fname = abspath(outpath + os.sep + "assembly.config")
+		assem_fname = abspath(outpath + "/assembly.config")
 		self.ccv_pair = {}
 		#self.message.append("[TnClone::Statistics] Computing Contig Coefficient of Variation(CCV) scores...")
 		#print ("[TnClone::Statistics]" , "Computing Contig Coefficient of Variation(CCV) scores...")
 		prefix = self.prefix
-		tmp_path = outpath + os.sep + "tmp"
+		tmp_path = outpath + "/tmp"
 		with open(assem_fname) as conf_file:
 			for line in conf_file:
 				data = line.rstrip().split("\t")
 				sample = data[0]
 				ksize = int(data[1])
-				target_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
-				node_name = tmp_path + os.sep + prefix + "_" + sample + "_k" + str(ksize) + ".nodes"
+				target_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+				node_name = tmp_path + "/" + prefix + "_" + sample + "_k" + str(ksize) + ".nodes"
 
 				faparser = FAParser(target_query)
 				faparser.open()
@@ -1532,28 +1531,27 @@ class PipelineThread(QtCore.QThread):
 					if refpath:
 						snv_loc = load_snv_loc(target_query)
 					else:
-						vcfname = outpath + os.sep + "vcf" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) +".dna.vcf"
+						vcfname = outpath + "/vcf/" + prefix + "_" + sample + "_k" + str(ksize) +".dna.vcf"
 						snv_loc = load_snv_loc_denovo(vcfname)
 					
 					node_data = load_node(node_name)
 					self.ccv_pair[sample]["ccv_set"] = self._compute_stat(target_query , node_data, snv_loc, cnt, ksize)
-		
+				
 		#print ("[TnClone::Statistics]" ,"Done computing Contig Coefficient of Variation(CCV) scores...")
 	def _get_confident_seqs(self):
 		prefix = self.prefix
 		#self.message.append("[TnClone::ContigSelector] Selecting Confident contigs using CCV value computed...")
-		#print "[TnClone::ContigSelector] Get confident sequences"
 		outpath = abspath(self.options["out_path"])
-		assem_fname = abspath(outpath + os.sep + "assembly.config")
+		assem_fname = abspath(outpath + "/assembly.config")
 		with open(assem_fname) as conf_file:
 			for line in conf_file:
 				data = line.rstrip().split("\t")
 				sample = data[0]
 				ksize = int(data[1])
 
-				target_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
-				indel_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
-				final_file_name = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.confident.fa"
+				target_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.good"
+				indel_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+				final_file_name = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.confident.fa"
 				final_file = open(final_file_name , "w")
 
 				ccv_n = self.ccv_pair[sample]["n"]
@@ -1593,41 +1591,18 @@ class PipelineThread(QtCore.QThread):
 					#selected = sorted_map[:2]
 					#id_set = map(lambda x : x[0] , selected)
 					selected = {}
-					for i in range(len(sorted_map)-1):
-						ccv1 = sorted_map[i][1]
-						ccv2 = sorted_map[i+1][1]
-						factor = ccv2 / ccv1
-						if factor <= 1.7:
-							selected[sorted_map[i][0]] = ccv1
-					# for id , value in sorted_map:
-						# ### value is ccv
-						# if value <= 1.7:
-							# ### Confident ones
-							# selected[id] = value
-					id_set = list(selected.keys())
-					if len(id_set) > 2:
-						# Select first two
-						xtmp = {}
-						for id , desc , seq in query_parser.parse():
-							xtmp[id] = seq
-						first = sorted_map[0]
-						second = sorted_map[1]
-						first_id = first[0]
-						first_ccv = first[1]
-						first_seq = xtmp[first_id]
-						second_id = second[0]
-						second_ccv = second[1]
-						second_seq = xtmp[second_id]
-						first_new_id = first_id + "|ccv=" + str(first_ccv)
-						second_new_id = second_id + "|ccv=" + str(second_ccv)
-						final_file.write(">"+first_new_id + "\n" + first_seq + "\n")
-						final_file.write(">"+second_new_id + "\n" + second_seq + "\n")
-					else:
-						for id , desc , seq in query_parser.parse():
-							if not id in id_set : continue
-							ccv = ccv_ratio_map[id]
-							new_id = id + "|ccv=" + str(ccv)
-							final_file.write(">"+new_id + "\n" + seq + "\n")
+					for id , value in sorted_map:
+						### value is ccv
+						if value <= 1.7:
+							### Confident ones
+							selected[id] = value
+					id_set = map(lambda x : x[0] , selected)		
+					for id , desc , seq in query_parser.parse():
+						if not id in id_set : continue
+						
+						ccv = ccv_ratio_map[id]
+						new_id = id + "|ccv=" + str(ccv)
+						final_file.write(">"+new_id + "\n" + seq + "\n")
 					# with open(indel_query) as F:
 						# for line in F:
 							# final_file.write(line)
@@ -1653,11 +1628,11 @@ team.tnclone(at)gmail.com
 
 
 		outpath = abspath(self.options["out_path"])
-		assem_fname = abspath(outpath + os.sep + "assembly.config")
+		assem_fname = abspath(outpath + "/assembly.config")
 		prefix = self.prefix
-		assem_path = outpath + os.sep + "assem"
+		assem_path = outpath + "/assem"
 		
-		report_path = outpath + os.sep + "report"
+		report_path = outpath + "/report"
 
 		ksize = int(self.options["ksize"])
 
@@ -1667,7 +1642,7 @@ team.tnclone(at)gmail.com
 			#print ("[TnClone::Reporter]" , "No report directory. Create.")
 			os.mkdir(report_path)
 
-		report_name = outpath + os.sep + "report/analysis.summary"
+		report_name = outpath + "/report/analysis.summary"
 
 		now = time.localtime()
 		analysis_time = "%04d-%02d-%02d %02d:%02d:%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
@@ -1679,7 +1654,7 @@ team.tnclone(at)gmail.com
 
 		#self.message.append("[TnClone::AnalysisReport] Reporting analysis result.\n")
 		#print ("[TnClone::AnalysisReport]", "Reporting analysis result.\n")
-#		confidence_report = open(report_path + os.sep + "dna_confident_contig_info.txt" , "w")
+#		confidence_report = open(report_path + "/dna_confident_contig_info.txt" , "w")
 		count_table = {}
 		for gene , n_sample in self.sample_counts_info.items():
 			count_table[gene] = []
@@ -1687,7 +1662,7 @@ team.tnclone(at)gmail.com
 				n_conf = 0
 				tot_final_fa = 0
 				sample = gene + "_" + str(i)
-				indel_query = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
+				indel_query = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.indel"
 				parser = FAParser(indel_query)
 				parser.open()
 				n_indels = 0
@@ -1697,7 +1672,7 @@ team.tnclone(at)gmail.com
 					n_indels = 0
 				parser.close()
 				
-				final_fa = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
+				final_fa = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.fa"
 				if os.stat(final_fa).st_size == 0:
 					tot_final_fa = 0
 				else:
@@ -1706,7 +1681,7 @@ team.tnclone(at)gmail.com
 					for id , desc, seq in tot_parser.parse():
 						tot_final_fa += 1
 					tot_parser.close()
-				confident_file = outpath + os.sep + "assem" + os.sep  + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.confident.fa"
+				confident_file = outpath + "/assem/" + prefix + "_" + sample + "_k" + str(ksize) + ".contig.final.confident.fa"
 				#ccv_n = self.ccv_pair[sample]["n"]
 				ccv_n = tot_final_fa
 				if ccv_n >= 2:
@@ -1746,9 +1721,9 @@ team.tnclone(at)gmail.com
 
 		### Loading DNA sam file
 		dna_error_table = {}
-		sam_path = outpath + os.sep + "sam"
+		sam_path = outpath + "/sam"
 
-		dna_free_report = open(report_path + os.sep + "dna_free_contig_info.txt" , "w")
+		dna_free_report = open(report_path + "/dna_free_contig_info.txt" , "w")
 		
 		free_query = {}
 		for gene , n_samples in self.sample_counts_info.items():
@@ -1756,7 +1731,7 @@ team.tnclone(at)gmail.com
 			free_query[gene] = {}
 			for i in range(1 , n_samples + 1):
 				sample = gene + "_" + str(i)
-				samname = sam_path + os.sep + sample + "_k" + str(ksize) + ".dna.sam"
+				samname = sam_path + "/" + sample + "_k" + str(ksize) + ".dna.sam"
 				free_query[gene][i] = []
 				if os.path.exists(samname) :
 					sam_reader = SamReader(samname)
@@ -1798,7 +1773,7 @@ team.tnclone(at)gmail.com
 
 
 		### Loading protein SAM file
-		aa_free_report = open(report_path + os.sep + "protein_free_contig_info.txt" , "w")
+		aa_free_report = open(report_path + "/protein_free_contig_info.txt" , "w")
 		aa_error_table = {}
 		free_query = {}
 		for gene , n_samples in self.sample_counts_info.items():
@@ -1806,7 +1781,7 @@ team.tnclone(at)gmail.com
 			free_query[gene] = {}
 			for i in range(1 , n_samples + 1):
 				sample = gene + "_" + str(i)
-				samname = sam_path + os.sep + sample + "_k" + str(ksize) + ".protein.sam"
+				samname = sam_path + "/" + sample + "_k" + str(ksize) + ".protein.sam"
 				free_query[gene][i] = []
 				if os.path.exists(samname):
 				
@@ -1866,10 +1841,10 @@ team.tnclone(at)gmail.com
 		for id ,desc , seq in parser.parse():
 			ratio_list = []
 			for p in var_pos:
-				# print "_compute_stat var_pos p" , p
-				if p > ksize:
+				if p < ksize:
 					kmer_before = seq[p-ksize:p]
 					next_alleles = node_data[kmer_before]["edge"]
+
 					other_kmers = map(lambda x : kmer_before[1:] + x , next_alleles)
 
 					my_kmer = kmer_before[1:] + seq[p]
@@ -1878,7 +1853,7 @@ team.tnclone(at)gmail.com
 
 					other_depths = map(lambda x : node_data[x]["dp"] , other_kmers)
 
-					norm_ratio = my_depth / float(sum(other_depths))
+					norm_ratio = my_depths / float(sum(other_depths))
 					ratio_list.append(norm_ratio)
 			
 			if len(ratio_list) == 0:
@@ -1893,48 +1868,7 @@ team.tnclone(at)gmail.com
 					ret.append( ( id , mean ) )
 		parser.close()
 		return ret
-	def _reference_mapping_mode(self):
-		#### TODO
-		outpath = self.options["out_path"]
-		assem_conf_name = abspath(self.options["out_path"]) + os.sep + "assembly.config"
-		try:
-			refpath = abspath(self.options["ref_path"])
-		except :
-			refpath = False
-		if refpath == False:
-			return -1
-		sampath = outpath + os.sep + "sam"
-		if not os.path.isdir(sampath):
-			os.mkdir(sampath)
-		vcfpath = outpath + os.sep + "vcf"
-		if not os.path.isdir(vcfpath):
-			os.mkdir(vcfpath)
-		fq_path = outpath + os.sep + "trimmed"
-		with open(assem_conf_name) as conf_file:
-			for line in conf_file:
-				data = line.rstrip().split("\t")
-				sample = data[0]
-				ksize = int(data[1])
-				KSIZE = ksize
 	
-				src = data[2]
-				snk = data[3]
-
-				depth_cutoff = data[4]
-				gene = sample.split("_")[0]
-				
-				fwd_fqname = fq_path + os.sep + gene + os.sep + sample + "_R1.trimmed.fastq"
-				rev_fqname = fq_path + os.sep + gene + os.sep + sample + "_R2.trimmed.fastq"
-				
-				refname = refpath + os.sep + gene + ".gene.fa"
-				samname = sampath + os.sep + sample + "_k" + str(ksize) + ".sam"
-				bamname = sampath + os.sep + sample + "_k" + str(ksize) + ".sam.bam.sort.bam.rgadd.bam"
-				vcfname = vcfpath + os.sep + sample + "_k" + str(ksize) + ".vcf"
-				mapping_engine = RawReadMappingEngine(sample, fwd_fqname, rev_fqname, refname, samname)
-				mapping_engine.run()
-				calling_engine = GATKRunningEngine(refname, bamname, vcfname)
-				calling_engine.run()
-		return 1
 	def run(self):
 		#if not self.is_running:
 		whole_start = time.time()
@@ -1955,39 +1889,29 @@ team.tnclone(at)gmail.com
 			self.single_mode = True
 			self._single_mode()
 		if self.options["analysis_on"] == True:
-			if self.options["assembly_on"] == False:
-				# Reference mapping module - Only creates VCF files
-				print "[TnClone::ReferenceMappingModule] Using reference mapping module to search malformed clones(SEE vcf directory of outpath)"
-				ret = self._reference_mapping_mode()
-				if ret == -1:
-					print "[TnClone::ReferenceMappingModule] Reference path is incorrect. Please check"
-				else:
-					print "[TnClone::ReferenceMappingModule] Succssfully Done"
-				print "[TnClone::ReferenceMappingModule] Result can be found at " , self.options["out_path"]
+			if self.options["ref_path"]== None or self.options["ref_path"] == '':
+				pass
 			else:
-				if self.options["ref_path"]== None or self.options["ref_path"] == '':
-					pass
+				if self.single_mode == True:
+					print "[TnClone::DownstreamAnalysis] Performing analysis of assembled contigs...."
+					self._perform_analysis()
+					print "[TnClone::DownstreamAnalysis] Get confident seuqneces from assembled contigs...."
+					self._get_confident_seqs()
+					print "[TnClone::DownstreamAnalysis] Reporting analysis of assembled contigs...."
+					self._report_analysis()
+					print "[TnClone::DownstreamAnalysis] Done downstream analysis of assembled contigs...."
+					print "[TnClone::DownstreamAnalysis] Result can be found at " , self.options["out_path"]
 				else:
-					if self.single_mode == True:
-						print "[TnClone::DownstreamAnalysis] Performing analysis of assembled contigs...."
-						self._perform_analysis()
-						print "[TnClone::DownstreamAnalysis] Get confident seuqneces from assembled contigs...."
-						self._get_confident_seqs()
-						print "[TnClone::DownstreamAnalysis] Reporting analysis of assembled contigs...."
-						self._report_analysis()
-						print "[TnClone::DownstreamAnalysis] Done downstream analysis of assembled contigs...."
-						print "[TnClone::DownstreamAnalysis] Result can be found at " , self.options["out_path"]
-					else:
-						print "[TnClone::DownstreamAnalysis] Start alignment of assembled contigs..."
-						self._run_alignment()
-						print "[TnClone::DownstreamAnalysis] Performing analysis of assembled contigs...."
-						self._perform_analysis()
-						print "[TnClone::DownstreamAnalysis] Get confident seuqneces from assembled contigs...."
-						self._get_confident_seqs()
-						print "[TnClone::DownstreamAnalysis] Reporting analysis of assembled contigs...."
-						self._report_analysis()
-						print "[TnClone::DownstreamAnalysis] Done downstream analysis of assembled contigs...."
-						print "[TnClone::DownstreamAnalysis] Result can be found at " , self.options["out_path"]
+					print "[TnClone::DownstreamAnalysis] Start alignment of assembled contigs..."
+					self._run_alignment()
+					print "[TnClone::DownstreamAnalysis] Performing analysis of assembled contigs...."
+					self._perform_analysis()
+					print "[TnClone::DownstreamAnalysis] Get confident seuqneces from assembled contigs...."
+					self._get_confident_seqs()
+					print "[TnClone::DownstreamAnalysis] Reporting analysis of assembled contigs...."
+					self._report_analysis()
+					print "[TnClone::DownstreamAnalysis] Done downstream analysis of assembled contigs...."
+					print "[TnClone::DownstreamAnalysis] Result can be found at " , self.options["out_path"]
 		whole_end = time.time()
 		print "\n===============================================================\n"
 		print "[TnClone] Finished analysis... One can quit this appication."
@@ -1998,7 +1922,7 @@ team.tnclone(at)gmail.com
 		print "[TnClone] Variant Call result can be found at %s/vcf"%(self.options["out_path"])
 		print "[TnClone] ---------------------------------------------------------------------------------------"
 		print "[TnClone] If you have 0 bytes contig file or 8 bytes contig file at below directory,"
-		print "[TnClone] %s"%(self.options["out_path"] + os.sep + "assem")
+		print "[TnClone] %s"%(self.options["out_path"] + "/assem")
 		print "[TnClone] Please visit https://github.com/tahuh/tnclone" 
 		print "[TnClone] See 'Some troubleshoot solution' section to get some help"
 		print "[TnClone] If you have any question then leave message at https://github.com/tahuh/tnclone/issues"
