@@ -4,7 +4,9 @@ TnClone: High-throughput clonal analysis using Tn5-mediated library construction
 TnClone now supports reference mapping based analysis
 
 ## NOTE
-TnClone's manuscript is under preparation. Please do not copy/modify this code before publication.
+TnClone is published Feb 2. 2019
+Paper can be found at https://pubs.acs.org/doi/10.1021/acssynbio.8b00482
+
 ## Before getting started
 Please read throughly the manual of version user using. 
 Almost all information including file formats for TnClone to run and output format description are described in manual.
